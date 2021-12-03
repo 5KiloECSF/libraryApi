@@ -1,18 +1,17 @@
 const User = require("./userModel");
-const AppError = require("../../utils/app_error");
-const catchAsync = require("../../utils/catchAsyncError");
-const { signJwtToken } = require("../../utils/process_JWT");
+const AppError = require("../../utils/appError");
+const catchAsync = require("../../utils/catchAsync");
+
 const { sendResponse, sendResponseWithToken,} = require("../../utils/success_response");
 
-const constroller = require("../../controllers/generalController");
+const controller = require("../../controllers/factoryController");
 
 // filter for fields that are allowed to be updated
 const filterBody = (reqBody, ...allowedFields) => {
   let newReqBody = {};
   Object.keys(reqBody).forEach((el) => {
-    if (allowedFields.includes(el)) {
-      newReqBody[el] = reqBody[el];
-    }
+    if (allowedFields.includes(el)) newReqBody[el] = reqBody[el];
+
   });
   return newReqBody;
 };
@@ -23,35 +22,16 @@ const getMe = (req, res, next) => {
   next();
 };
 
-const updateMyPassword = catchAsync(async (req, res, next) => {
-  const { currentPassword, newPassword, confirmPassword } = req.body;
-  const user = req.user;
-  if (!currentPassword || !newPassword)
-    return next(new AppError("The current and new password is required!", 401));
-  if (currentPassword === newPassword)
-    return next(
-      new AppError("Password is same! please choose different password", 401)
-    );
-  if (confirmPassword !== newPassword)
-    return next(
-      new AppError("Password and confirm password must be the same", 401)
-    );
-  // console.log(currentPassword);
-  if (!(await user.comparePassword(currentPassword, req.user.password)))
-    return next(new AppError("old password is wrong!", 401));
-
-  user.password = newPassword;
-  await user.save();
-
-  const update_pwd_token = await signJwtToken({
-    id: user.id,
-    name: `${user.firstname} ${user.lastname}`,
-  });
-  req.user.password = undefined;
-  sendResponseWithToken(200, req.user, res, update_pwd_token);
-});
-
 const updateMe = catchAsync(async (req, res, next) => {
+
+  // 1) Create error if user POSTs password data
+  if (req.body.password || req.body.passwordConfirm) {
+    return next(
+        new AppError('This route is not for password updates. Please use /updateMyPassword.', 400)
+    );
+  }
+
+  // 2) Filtered out unwanted fields names that are not allowed to be updated
   const filtedFields = filterBody(
     req.body,
     "firstname",
@@ -59,6 +39,7 @@ const updateMe = catchAsync(async (req, res, next) => {
     "phone",
     "email"
   );
+  // 3) Update user document
   await User.findByIdAndUpdate(req.user.id, filtedFields, {
     new: true,
     runValidators: true,
@@ -98,7 +79,7 @@ const unFollow = catchAsync(async (req, res, next) => {
 });
 
 exports.getMe =getMe
-exports.updateMyPassword = updateMyPassword
+
 exports.updateMe = updateMe
 exports.deleteMe = deleteMe
 exports.follow = follow
@@ -107,8 +88,8 @@ exports.unFollow = unFollow
 // admin operations
 
 // dont try to update user password through this
-exports.createUser = constroller.createOne(User);
-exports.updateUser = constroller.updateOne(User);
-exports.getAllUsers = constroller.getAll(User);
-exports.getUser = constroller.getOne(User);
-exports.deleteUser = constroller.deleteOne(User);
+exports.createUser = controller.createOne(User);
+exports.updateUser = controller.updateOne(User);
+exports.getAllUsers = controller.getAll(User);
+exports.getUser = controller.getOne(User);
+exports.deleteUser = controller.deleteOne(User);

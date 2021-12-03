@@ -14,8 +14,8 @@ const dotenv = require("dotenv");
 
 dotenv.config({ path: './.env' });
 // import global error handler
-const AppError = require("./utils/app_error");
-const globalErrorHandler = require("./middlewares/global_error_handler");
+const AppError = require("./utils/appError");
+const globalErrorHandler = require("./app/error/global_error_handler");
 
 //import routes
 const userRouter = require("./app/users/usersRoute");
@@ -67,9 +67,13 @@ app.use(express.json({ limit: "10kb" }));
  * registering middlewares
  */
 app.use("/api/v1/users", userRouter);
-console.log("app is  here")
+// console.log("app is  here")
 app.use("/api/v1/auth", authRouter);
 
+app.get("/", function (req, res) {
+
+  res.status(200).json("hi");
+});
 // app.use("/api/v1/reviews", reviewRouter);
 
 /**

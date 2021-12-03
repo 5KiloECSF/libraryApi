@@ -1,7 +1,7 @@
 const { sendResponse } = require("../utils/success_response");
-const catchAsync = require("../utils/catchAsyncError");
-const AppError = require("../utils/app_error");
-const ApiFilters = require("./apiFilters");
+const catchAsync = require("../utils/catchAsync");
+const AppError = require("../utils/appError");
+const ApiFilters = require("./apiFeatures");
 
 exports.deleteOne = (Model) =>
   catchAsync(async (req, res, next) => {
@@ -29,12 +29,15 @@ exports.updateOne = (Model) =>
 
 exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
+      console.log("creating a user", req.body)
     const newDoc = await Model.create(req.body);
+
     sendResponse(200, newDoc, res);
   });
 
 exports.getOne = (Model, populateOptions) =>
   catchAsync(async (req, res, next) => {
+      console.log("-== finding one")
     let query = Model.findById(req.params.id).select("-__v");
 
     if (populateOptions) query.populate(populateOptions);
@@ -47,9 +50,14 @@ exports.getOne = (Model, populateOptions) =>
 
 exports.getAll = (Model) =>
   catchAsync(async (req, res, next) => {
-    //allow nest routes
+      console.log("querying all")
+
+      // To allow for nested GET reviews an art (hack)
     let idFilter = {};
-    if (req.params.house) idFilter = { house: req.params.house };
+    //if it is requesting for reviews with this tourId
+    if (req.params.tourId) idFilter = { tourId: req.params.tourId };
+    //if it is requesting for tours with this categoryID
+    if (req.params.ctgId) idFilter = { ctgId: req.params.ctgId };
 
     // apply api features on given query
     const features = new ApiFilters(Model.find(idFilter), req.query)
@@ -59,7 +67,9 @@ exports.getAll = (Model) =>
       .pagination();
 
     // excute query
+      // const doc = await features.query.explain();
     const doc = await features.query;
+    console.log("QueryRes==<>", doc)
     // send responce to client
     sendResponse(200, doc, res);
   });

@@ -2,7 +2,7 @@
  * @class
  * general app custom error handler class.
  */
-class App_error extends Error {
+class AppError extends Error {
 
     /** 
      * @constructor
@@ -20,4 +20,4 @@ class App_error extends Error {
     }
 }
 
-module.exports = App_error;
+module.exports = AppError;

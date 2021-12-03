@@ -1,7 +1,7 @@
 const { Schema, model } = require("mongoose");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
-
+const crypo = require('crypto');
 /**
  * User Schema
  */
@@ -51,6 +51,8 @@ const userSchema = new Schema(
       select: false,
     },
     passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
     createdAt: {
       type: Date,
       default: Date.now(),
@@ -62,7 +64,7 @@ const userSchema = new Schema(
       select: false,
     },
       //TODO reomve these as they dont represent general models
-      soldItems: {
+      totalArt: {
           type: Number,
           default: 0,
       },
@@ -99,13 +101,27 @@ userSchema.methods.comparePassword = async (inputPassword, storedPassword) => {
 userSchema.methods.checkPasswordChange = (jwtTimeStamp) => {
   if (this.passwordChangedAt) {
     const passChangeTime = parseInt(
-      this.passwordChangedAt.getTime() / 1000,
-      10
-    );
+      this.passwordChangedAt.getTime() / 1000,10);
     return jwtTimeStamp < passChangeTime;
   }
   return false;
 };
+
+userSchema.methods.createPasswordResetToken = function() {
+    const resetToken = crypo.randomBytes(32).toString('hex');
+
+    this.passwordResetToken = crypo
+        .createHash('sha256')
+        .update(resetToken)
+        .digest('hex');
+
+    // console.log({ resetToken }, this.passwordResetToken);
+
+    this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+    return resetToken;
+};
+
 
 /**
  * Get only active user accounts

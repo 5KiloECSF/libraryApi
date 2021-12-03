@@ -1,15 +1,15 @@
 // const Review = require("../app/review/reviewModel");
-const House = require("../app/house/houseModel");
-const AppError = require("../utils/app_error");
+const Art = require("../app/tour/artModel");
+const AppError = require("../utils/appError");
 
 const {isAdminInWhiteList} = require("./check_admin_white_list");
 
-const isHouseOwner = (access) => {
+const isArtOwner= (access) => {
     return async (req, res, next) => {
-        const houseId = req.params.id;
-        const house = await House.findById(houseId).select("isSold _id postedBy");
+        const artId = req.params.id;
+        const art = await Art.findById(artId).select("isSold _id postedBy");
 
-        let isAllowed = req.user.id === house.postedBy.id;
+        let isAllowed = req.user.id === art.postedBy.id;
         let isAdminRole = isAdminInWhiteList(req.user) && access && access.admin;
         if (!(isAllowed || isAdminRole))
             //and if not already sold
@@ -37,5 +37,5 @@ const isHouseOwner = (access) => {
 
 // };
 
-exports.isHouseOwner =isHouseOwner
+exports.isArtOwner =isArtOwner
 // exports.isReviewOwner = isReviewOwner

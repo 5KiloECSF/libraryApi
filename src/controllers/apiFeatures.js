@@ -1,4 +1,4 @@
-class ApiFilters {
+class APIFeatures {
   constructor(query, queryString) {
     this.query = query;
     this.queryString = queryString;
@@ -59,4 +59,4 @@ class ApiFilters {
   }
 }
 
-module.exports = ApiFilters;
+module.exports = APIFeatures;

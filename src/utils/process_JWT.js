@@ -5,16 +5,16 @@ const {JWT_SECRET_KEY, JWT_EXPIRES_IN} = require("./constants");
 
 
 
-const signJwtToken = async (payload) => {
+const signJwtToken = (payload) => {
     const payload_data = {
         ...payload,
         name: payload.name.split(' ')[0]
     }
 
-    return await jwt.sign(payload_data, JWT_SECRET_KEY, {
+    return jwt.sign(payload_data, JWT_SECRET_KEY, {
         expiresIn: JWT_EXPIRES_IN,
         algorithm: 'HS256'
-    })
+    });
 }
 
 

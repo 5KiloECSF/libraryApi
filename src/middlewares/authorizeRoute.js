@@ -1,5 +1,5 @@
-const AppError = require("../utils/app_error");
-const catchAsync = require("../utils/catchAsyncError");
+const AppError = require("../utils/appError");
+const catchAsync = require("../utils/catchAsync");
 const User = require("../app/users/userModel");
 const {verifyJwtToken} = require("../utils/process_JWT");
 const { isAdminInWhiteList } = require("./check_admin_white_list");
@@ -11,9 +11,7 @@ const { isAdminInWhiteList } = require("./check_admin_white_list");
 const restrictRole = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return next(
-        new AppError("You don't have permission to perform this action!", 403)
-      );
+      return next(new AppError("You don't have permission to perform this action!", 403));
     }
     next();
   };
@@ -21,7 +19,7 @@ const restrictRole = (...roles) => {
 
 const protectRoute = catchAsync(async (req, res, next) => {
   let tokenString = '';
-
+  // 1) Getting token and check of it's there
   if (req.headers.authorization&& req.headers.authorization.split(' ')[1]) {
     // let tokenArray = req.header('authorization').split(' ');
     // tokenString = tokenArray[0] === 'Bearer' ? tokenArray[1] : tokenArray[0];
@@ -32,17 +30,21 @@ const protectRoute = catchAsync(async (req, res, next) => {
     return next(new AppError('Unauthorized! please sign in first!', 401));
   }
 
-  if (!tokenString) return next(new AppError('Unauthorized! please sign in first!', 401));
+  if (!tokenString) return next(new AppError('Unauthorized! please log in first!', 401));
 
-  const decoded_authenticate_token = await verifyJwtToken(tokenString);
-  const currentUser = await User.findById(decoded_authenticate_token.id).select(['+password', '-__v', '+active']);
+  // 2) Verification token
+  const decoded_token = await verifyJwtToken(tokenString);
+
+  // 3) Check if user still exists
+  const currentUser = await User.findById(decoded_token.id).select(['+password', '-__v', '+active']);
 
   if (!currentUser)
     return next(
         new AppError('User no longer exist! please sign in again!', 401)
     );
 
-  if (currentUser.checkPasswordChange(decoded_authenticate_token.iat))
+  // 4) Check if user changed password after the token was issued
+  if (currentUser.checkPasswordChange(decoded_token.iat))
     return next(
         new AppError('User recently changed password! please sign in again!', 401)
     );
@@ -54,6 +56,7 @@ const protectRoute = catchAsync(async (req, res, next) => {
         new AppError('Bad request! This user is not an admin', 401)
     );
   }
+  // GRANT ACCESS TO PROTECTED ROUTE
   req.user = currentUser;
   next();
 });
