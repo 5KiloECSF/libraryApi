@@ -5,6 +5,7 @@ const crypo = require('crypto');
 /**
  * User Schema
  */
+
 const userSchema = new Schema(
   {
     firstname: {

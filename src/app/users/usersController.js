@@ -2,6 +2,7 @@ const User = require("./userModel");
 const AppError = require("../../utils/appError");
 const catchAsync = require("../../utils/catchAsync");
 
+
 const { sendResponse, sendResponseWithToken,} = require("../../utils/success_response");
 
 const controller = require("../../controllers/factoryController");
@@ -20,16 +21,16 @@ const filterBody = (reqBody, ...allowedFields) => {
 const getMe = (req, res, next) => {
   req.params.id = req.user.id;
   next();
-};
+};  
 
 const updateMe = catchAsync(async (req, res, next) => {
-
+  console.log("here")
   // 1) Create error if user POSTs password data
-  if (req.body.password || req.body.passwordConfirm) {
-    return next(
-        new AppError('This route is not for password updates. Please use /updateMyPassword.', 400)
-    );
-  }
+  // if (req.body.password || req.body.passwordConfirm) {
+  //   return next(
+  //       new AppError('This route is not for password updates. Please use /updateMyPassword.', 400)
+  //   );
+  // }
 
   // 2) Filtered out unwanted fields names that are not allowed to be updated
   const filtedFields = filterBody(
@@ -40,13 +41,19 @@ const updateMe = catchAsync(async (req, res, next) => {
     "email"
   );
   // 3) Update user document
-  await User.findByIdAndUpdate(req.user.id, filtedFields, {
+  // await User.findByIdAndUpdate(req.user.id, filtedFields, {
+  console.log("req.param", req.params.id, filtedFields)
+
+
+
+  const datas = await User.findByIdAndUpdate(req.params.id, filtedFields, {
     new: true,
     runValidators: true,
   });
 
-  req.user.password = undefined;
-  sendResponse(200, req.user, res);
+  console.log("in here=>", datas)
+  // req.user.password = undefined;
+  sendResponse(202, datas, res);
 });
 
 const deleteMe = catchAsync(async (req, res, next) => {
@@ -82,14 +89,58 @@ exports.getMe =getMe
 
 exports.updateMe = updateMe
 exports.deleteMe = deleteMe
+
 exports.follow = follow
 exports.unFollow = unFollow
 
 // admin operations
 
+const updateUsr = catchAsync(async (req, res, next) => {
+
+  // // 1) Create error if user POSTs password data
+  // if (req.body.password || req.body.passwordConfirm) {
+  //   console.log("found error")
+  //   return next(
+  //       new AppError('This route is not for password updates. Please use /updateMyPassword.', 400)
+  //
+  //       // new Error("error")
+  //   );
+  // }
+
+  // 2) Filtered out unwanted fields names that are not allowed to be updated
+  const filtedFields = filterBody(
+      req.body,
+      "firstname",
+      "lastname",
+      "phone",
+      "email"
+  );
+
+  console.log("filteredFields", filtedFields)
+  console.log("reqParams", req.params.id)
+
+  // 3) Update user document
+  const doc = await User.findByIdAndUpdate(req.params.id, filtedFields, {
+    new: true,
+    runValidators: true,
+  });
+  console.log("here 22", doc)
+
+  // req.user.password = undefined;
+
+
+  if (!doc){
+    console.log("NODoc")
+    return next(new AppError("No document found with given id!", 404));
+  }
+
+
+  sendResponse(202, doc, res);
+
+});
 // dont try to update user password through this
 exports.createUser = controller.createOne(User);
-exports.updateUser = controller.updateOne(User);
+exports.updateUser = updateUsr
 exports.getAllUsers = controller.getAll(User);
 exports.getUser = controller.getOne(User);
 exports.deleteUser = controller.deleteOne(User);

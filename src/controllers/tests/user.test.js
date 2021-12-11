@@ -10,7 +10,10 @@ it('Testing to see if Jest works', () => {
     expect(1).toBe(1)
 })
 
-const usersUrl ="/api/v1/users"
+const usersUrl ="/api/v1/users/"
+
+const user1 =  { firstname: "first 1", lastname:"last 1", phone: "+251911223344", password:"123456", email:"abc@123.com" }
+const user2 =  { firstname: "first 2", lastname:"last 2", phone: "+251911223355", password:"654321", email:"cde@345.com" }
 
 describe("Test the root path", () => {
     test("It should response the GET method", async () => {
@@ -37,7 +40,6 @@ describe("user api", () => {
     afterAll(async () => {
         await User.deleteMany({});
     });
-
     afterEach(async () => {
         await User.deleteMany();
     });
@@ -49,94 +51,104 @@ describe("user api", () => {
     test("GET allUsers /api/users", async () => {
         // console.log("---geting all users")
 
-        const usr = await User.create({ firstname: "User 1", lastname:"123", phone: "+251911223344", password:"123456", email:"abc@123.com" });
+        const usr = await User.create(user1);
         // console.log("dbCreatedUser=", post)
-
         const response = await supertest(app).get(usersUrl);
         expect(response.statusCode).toBe(200);
-
         let doc = response.body.message.data
-        console.log("RESP", response.body)
+
+        console.log("RESP", response.body.message.data)
                 // Check type and length
                 expect(Array.isArray(doc)).toBeTruthy();
                 expect(doc.length).toEqual(1);
 
                 // Check data
-                expect(doc[0]._id).toBe(usr.id);
-                expect(doc[0].name).toBe(usr.name);
+                expect(doc[0].id).toBe(usr.id);
+                expect(doc[0].firstname).toBe(usr.firstname);
                 expect(doc[0].phone).toBe(usr.phone);
     });
 
-
-
-
     test("Create one /api/user", async () => {
 
-        const data = { title: "Post 1", content: "Lorem ipsum" };
+        const response = await supertest(app).post(usersUrl).send(user1);
+        expect(response.statusCode).toBe(201);
+        let doc = response.body.message.data
 
-        const response = await supertest(app).post(usersUrl);
-        expect(response.statusCode).toBe(200);
-                // Check the response
-                expect(response.body._id).toBeTruthy();
-                expect(response.body.title).toBe(data.title);
-                expect(response.body.content).toBe(data.content);
+        // Check the response
+        //         expect(doc.id).toBe(user1.id);
+                expect(doc.firstname).toBe(user1.firstname);
+                expect(doc.phone).toBe(user1.phone);
 
                 // Check data in the database
-                const post = await Post.findOne({ _id: response.body._id });
-                expect(post).toBeTruthy();
-                expect(post.title).toBe(data.title);
-                expect(post.content).toBe(data.content);
+            const usr = await User.findOne({ _id: doc._id });
+                expect(doc.id).toBe(usr.id);
+                expect(doc.firstname).toBe(usr.firstname);
+                expect(doc.phone).toBe(usr.phone);
+
 
     });
 
     test("GET_ONE /api/users/:id", async () => {
-        const user = await User.create({ firstname: "User 1", lastname:"123", phone: "+251911223344", password:"123456", email:"abc@123.com" });
+        const user = await User.create(user1);
 
         const response = await supertest(app).get(usersUrl + user.id);
         expect(response.statusCode).toBe(200);
+        let doc = response.body.message.data
 
-                expect(response.body._id).toBe(user.id);
-                expect(response.body.firstname).toBe(user.firstname);
-                expect(response.body.phone).toBe(user.phone);
+                expect(doc.id).toBe(user.id);
+                expect(doc.firstname).toBe(user.firstname);
+                expect(doc.phone).toBe(user.phone);
 
     });
 
     test("PATCH /api/posts/:id", async () => {
-        const post = await Post.create({ title: "Post 1", content: "Lorem ipsum" });
+        const user = await User.create(user1);
 
-        const data = { title: "New title", content: "dolor sit amet" };
-
-        const response = await supertest(app).patch(usersUrl );
-        expect(response.statusCode).toBe(200);
-
+        const response = await supertest(app).patch(usersUrl + user.id).send(user2);
+        expect(response.statusCode).toBe(202);
+        let doc = response.body.message.data
+        console.log("updated User =", doc)
         // Check the response
-                expect(response.body._id).toBe(post.id);
-                expect(response.body.title).toBe(data.title);
-                expect(response.body.content).toBe(data.content);
+        // expect(doc.id).toBe(user.id);
+        // expect(doc.firstname).toBe(user1.firstname);
+        // expect(doc.phone).toBe(user1.phone);
 
-                // Check the data in the database
-                const newPost = await Post.findOne({ _id: response.body._id });
-                expect(newPost).toBeTruthy();
-                expect(newPost.title).toBe(data.title);
-                expect(newPost.content).toBe(data.content);
+        const usr = await User.findOne({ _id: doc._id });
+        expect(doc.id).toBe(usr.id);
+        // expect(doc.firstname).toBe(user2.firstname);
+        // expect(doc.phone).toBe(usr.phone);
 
     });
 
     test("DELETE /api/posts/:id", async () => {
-        const post = await Post.create({
-            title: "Post 1",
-            content: "Lorem ipsum",
-        });
+        const user = await User.create(user1);
 
         await supertest(app)
-            .delete("/api/posts/" + post.id)
+            .delete(usersUrl + user.id)
             .expect(204)
             .then(async () => {
-                expect(await Post.findOne({ _id: post.id })).toBeFalsy();
+                expect(await User.findOne({ _id: user.id })).toBeFalsy();
             });
     });
 
+    test("Update me  /api/posts/:id", async () => {
+        const user = await User.create(user1);
 
+        const response = await supertest(app).patch(usersUrl +"/me/update/"+ user.id).send(user2);
+        expect(response.statusCode).toBe(202);
+        let doc = response.body.message.data
+        console.log("updated User =", doc)
+        // Check the response
+        expect(doc.id).toBe(user.id);
+        expect(doc.firstname).toBe(user2.firstname);
+        expect(doc.phone).toBe(user2.phone);
+
+        const usr = await User.findOne({ _id: doc._id });
+        expect(doc.id).toBe(usr.id);
+        expect(doc.firstname).toBe(user2.firstname);
+        expect(doc.phone).toBe(usr.phone);
+
+    });
 
 
 })

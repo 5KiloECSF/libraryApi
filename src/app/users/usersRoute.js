@@ -18,14 +18,14 @@ userRouter.post("/follow", usersController.getMe, usersController.follow);
 userRouter.delete("/follow", usersController.getMe, usersController.unFollow);
 
 userRouter.get("/me", usersController.getMe, usersController.getUser);
-userRouter.patch("/me/update", usersController.updateMe);
+userRouter.patch("/me/update/:id", usersController.updateMe);
 
 userRouter.delete("/me/delete", usersController.deleteMe);
 
 // userRouter.use(restrictRole("admin"));
 userRouter.route("/")
     // .post(userSignupInputRule(),validateInput, usersController.createUser)
-    .post( usersController.createUser)
+    .post(usersController.createUser)
     .get(usersController.getAllUsers); //only admin can view all users
 userRouter
   .route("/:id")

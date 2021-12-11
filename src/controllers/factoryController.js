@@ -10,7 +10,7 @@ exports.deleteOne = (Model) =>
     if (!doc)
       return next(new AppError("No document found with given id!", 404));
 
-    sendResponse(200, null, res);
+    sendResponse(204, null, res);
   });
 
 exports.updateOne = (Model) =>
@@ -24,7 +24,7 @@ exports.updateOne = (Model) =>
     if (!doc)
       return next(new AppError("No document found with given id!", 404));
 
-    sendResponse(200, doc, res);
+    sendResponse(202, doc, res);
   });
 
 exports.createOne = (Model) =>
@@ -32,7 +32,7 @@ exports.createOne = (Model) =>
       console.log("creating a user", req.body)
     const newDoc = await Model.create(req.body);
 
-    sendResponse(200, newDoc, res);
+    sendResponse(201, newDoc, res);
   });
 
 exports.getOne = (Model, populateOptions) =>
