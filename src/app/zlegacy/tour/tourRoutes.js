@@ -1,7 +1,7 @@
 const express = require('express');
 const tourController = require('./tourController');
-const {  protectRoute,  restrictRole } = require('../../middlewares/authorizeRoute');
-const reviewRouter = require('../review/reviewRoutes');
+const {  protectRoute,  restrictRole } = require('../../../middlewares/authorizeRoute');
+const reviewRouter = require('../../review/reviewRoutes');
 
 const router = express.Router();
 

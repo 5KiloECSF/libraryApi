@@ -1,8 +1,10 @@
 // const request = require("supertest");
-const app = require("../../app");
+// import expect from "expect";
+
+const app = require("../../../app");
 
 const supertest = require("supertest");
-const User = require("../../app/users/userModel")
+const User = require("../userModel")
 
 
 // This passes because 1 === 1
@@ -11,9 +13,11 @@ it('Testing to see if Jest works', () => {
 })
 
 const usersUrl ="/api/v1/users/"
+const {user1, user2} = require("./user.mock")
+// const user1 =  { firstname: "first 1", lastname:"last 1", phone: "+251911223344", password:"123456", email:"abc@123.com" }
+// const user2 =  { firstname: "first 2", lastname:"last 2", phone: "+251911223355", password:"654321", email:"cde@345.com" }
 
-const user1 =  { firstname: "first 1", lastname:"last 1", phone: "+251911223344", password:"123456", email:"abc@123.com" }
-const user2 =  { firstname: "first 2", lastname:"last 2", phone: "+251911223355", password:"654321", email:"cde@345.com" }
+
 
 describe("Test the root path", () => {
     test("It should response the GET method", async () => {
@@ -131,24 +135,6 @@ describe("user api", () => {
             });
     });
 
-    test("Update me  /api/posts/:id", async () => {
-        const user = await User.create(user1);
-
-        const response = await supertest(app).patch(usersUrl +"/me/update/"+ user.id).send(user2);
-        expect(response.statusCode).toBe(202);
-        let doc = response.body.message.data
-        console.log("updated User =", doc)
-        // Check the response
-        expect(doc.id).toBe(user.id);
-        expect(doc.firstname).toBe(user2.firstname);
-        expect(doc.phone).toBe(user2.phone);
-
-        const usr = await User.findOne({ _id: doc._id });
-        expect(doc.id).toBe(usr.id);
-        expect(doc.firstname).toBe(user2.firstname);
-        expect(doc.phone).toBe(usr.phone);
-
-    });
 
 
 })

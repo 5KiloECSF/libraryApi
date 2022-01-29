@@ -2,7 +2,7 @@ const express = require('express');
 
 const bookingController = require('./bookingController');
 
-const {  protectRoute,  restrictRole } = require('../../middlewares/authorizeRoute');
+const {  protectRoute,  restrictRole } = require('../../../middlewares/authorizeRoute');
 const router = express.Router();
 
 router.use(protectRoute);

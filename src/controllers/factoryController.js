@@ -5,11 +5,12 @@ const ApiFilters = require("./apiFeatures");
 
 exports.deleteOne = (Model) =>
   catchAsync(async (req, res, next) => {
+      console.log("aboutTODel=", req.params.id)
     const doc = await Model.findByIdAndDelete(req.params.id);
 
     if (!doc)
       return next(new AppError("No document found with given id!", 404));
-
+    console.log("objDeleted=",doc)
     sendResponse(204, null, res);
   });
 
@@ -29,16 +30,16 @@ exports.updateOne = (Model) =>
 
 exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
-      console.log("creating a user", req.body)
-    const newDoc = await Model.create(req.body);
 
+    const newDoc = await Model.create(req.body);
+      console.log("creating a user==+>", req.body, "doc==++>", newDoc.id)
     sendResponse(201, newDoc, res);
   });
 
 exports.getOne = (Model, populateOptions) =>
   catchAsync(async (req, res, next) => {
-      console.log("-== finding one")
-    let query = Model.findById(req.params.id).select("-__v");
+      // console.log("-== finding one")
+    let query = Model.findById(req.params.id).select("-__v -password");
 
     if (populateOptions) query.populate(populateOptions);
 

@@ -13,24 +13,39 @@ const sendResponse = (statusCode, data, res) => {
     });
 }
 
-const sendResponseWithToken = (statusCode, user, res) => {
+const sendError = (statusCode, data, res) => {
 
-    const cookieOption = {
-        expires: new Date(Date.now() + JWT_COOKIE_EXPIRES_IN * 60 * 60 * 24 * 1000),
-        httpOnly: true, // cookie cannot be accessed or modified in any way by the browser
-    }
+    res.status(statusCode).send({
+        status: "error",
+        message: {
+            results: data instanceof Array ? data.length : undefined,
+            data
+        }
+    });
+}
+
+
+const sendResponseWithToken = (statusCode, user, res) => {
 
     const _token = signJwtToken({
         id: user.id,
         name: `${user.firstname} ${user.lastname}`,
         phone: user.phone
     });
+
+
+    const cookieOption = {
+        expires: new Date(Date.now() + JWT_COOKIE_EXPIRES_IN * 60 * 60 * 24 * 1000),
+        httpOnly: true, // cookie cannot be accessed or modified in any way by the browser
+    }
+
     user.password = undefined;
 
 
     if (isProduction()) cookieOption.secure = true;
     res.cookie('jwt', cookieOption);
 
+    console.log("response===-->", statusCode)
     res.status(statusCode).json({
         status: "success",
         _token,
@@ -40,6 +55,7 @@ const sendResponseWithToken = (statusCode, user, res) => {
         }
     });
 }
+
 
 exports.sendResponseWithToken = sendResponseWithToken
 exports.sendResponse = sendResponse

@@ -17,11 +17,14 @@
   "author": "bruk belay",
   "jest": {
     "testEnvironment": "node",
-    "setupFilesAfterEnv": ["./test/setup.js"],
-
+    "setupFilesAfterEnv": [
+      "./test/setup.js"
+    ],
     "testTimeout": 60000,
-    "testPathIgnorePatterns": ["./node_modules/", "./build/"],
-
+    "testPathIgnorePatterns": [
+      "./node_modules/",
+      "./build/"
+    ],
     "coveragePathIgnorePatterns": [
       "/node_modules/"
     ],
@@ -39,6 +42,7 @@
     "express": "^4.17.1",
     "express-rate-limit": "^5.3.0",
     "express-validator": "^6.12.0",
+    "firebase-admin": "^10.0.1",
     "helmet": "^4.6.0",
     "hpp": "^0.2.3",
     "html-to-text": "^5.1.1",
@@ -54,8 +58,8 @@
     "validator": "^13.6.0",
     "xss-clean": "^0.1.1"
   },
-
   "devDependencies": {
+    "expect": "^27.4.6",
     "jest": "^27.0.6",
     "jest-config": "^27.3.1",
     "morgan": "^1.10.0",

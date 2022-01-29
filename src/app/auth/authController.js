@@ -7,17 +7,17 @@ const Email = require("../../utils/email");
 
 const login = catchAsync(async (req, res, next) => {
     console.log("here-login--")
-    const { email, password } = req.body;
+    const { phone, password } = req.body;
 
     // 1) Check if email and password exist
-    if (!email || !password) {
+    if (!phone || !password) {
         return next(new AppError('Please provide email and password!', 400));
     }
     // 2) Check if user exists && password is correct
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ phone }).select('+password');
 
     if (!user || !(await user.comparePassword(password, user.password))) {
-        return next(new AppError('Incorrect email or password', 401));
+        return next(new AppError('Incorrect phone or password', 401));
     }
 
 
@@ -25,6 +25,11 @@ const login = catchAsync(async (req, res, next) => {
     sendResponseWithToken(200, user, res);
 
 });
+
+
+
+
+
 
 const register = catchAsync(async (req, res, next) => {
     const { firstname, lastname, email, phone, password, passwordConfirm } = req.body;
@@ -36,6 +41,8 @@ const register = catchAsync(async (req, res, next) => {
     newUser.__v = undefined
     sendResponse(200, newUser, res);
 });
+
+
 
 
 const updateMyPassword = catchAsync(async (req, res, next) => {
@@ -59,8 +66,7 @@ const updateMyPassword = catchAsync(async (req, res, next) => {
     if (!(await user.comparePassword(currentPassword, user.password)))
         return next(new AppError("old password is wrong!", 401));
     // 3) If so, update password
-    user.password = newPassword;
-    await user.save();
+
     // 4) Log user in, send JWT
     sendResponseWithToken(200, req.user, res);
 });
@@ -98,6 +104,7 @@ const sendForgotPasswordTokenByEmail = catchAsync(async (req, res, next) => {
     }
 });
 
+
 const resetPassword = catchAsync(async (req, res, next) => {
     // 1) Get user based on the token
     const hashedToken = crypto
@@ -122,7 +129,8 @@ const resetPassword = catchAsync(async (req, res, next) => {
 
     // 3) Update changedPasswordAt property for the user
     // 4) Log the user in, send JWT
-    createSendToken(user, 200, req, res);
+    sendResponseWithToken(200, user, res);
+    // createSendToken(user, 200, req, res);
 });
 
 

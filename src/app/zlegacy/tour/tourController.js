@@ -1,9 +1,9 @@
 const multer = require('multer');
 const sharp = require('sharp');
 const Tour = require('./tourModel');
-const catchAsync = require('../../utils/catchAsync');
-const factory = require('../../controllers/factoryController');
-const AppError = require('../../utils/appError');
+const catchAsync = require('../../../utils/catchAsync');
+const factory = require('../../../controllers/factoryController');
+const AppError = require('../../../utils/appError');
 
 const multerStorage = multer.memoryStorage();
 
@@ -25,7 +25,7 @@ exports.uploadTourImages = upload.fields([
   { name: 'images', maxCount: 3 }
 ]);
 
-// upload.single('image') req.file
+// upload.single('image' ) req.file
 // upload.array('images', 5) req.files
 
 exports.resizeTourImages = catchAsync(async (req, res, next) => {

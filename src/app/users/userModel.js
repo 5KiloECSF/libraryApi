@@ -22,16 +22,19 @@ const userSchema = new Schema(
     },
     email: {
       type: String,
-      required: [true, "user should have email!"],
+      // required: [true, "user should have email!"],
       unique: true,
       lowercase: true,
       validate: [validator.isEmail, "Invalid email. Please use valid email!"],
     },
     phone: {
       type: String,
-      required: [true, "phone number is required"],
+      // required: [true, "phone number is required"],
       minlength: [10, "invalid phone number format, too short"],
       maxlength: [14, "invalid phone number format, too long"],
+    },
+    firebaseId:{
+        type: String,
     },
     role: {
       type: String,
@@ -64,11 +67,6 @@ const userSchema = new Schema(
       default: true,
       select: false,
     },
-      //TODO reomve these as they dont represent general models
-      totalArt: {
-          type: Number,
-          default: 0,
-      },
       following: [{ type: Schema.Types.ObjectId, ref: "User" }],
   },
   {
@@ -110,7 +108,6 @@ userSchema.methods.checkPasswordChange = (jwtTimeStamp) => {
 
 userSchema.methods.createPasswordResetToken = function() {
     const resetToken = crypo.randomBytes(32).toString('hex');
-
     this.passwordResetToken = crypo
         .createHash('sha256')
         .update(resetToken)
