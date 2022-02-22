@@ -4,29 +4,29 @@ const catchAsync = require("../../utils/catchAsync");
 const User = require("../users/userModel");
 const AppError = require("../../utils/appError");
 const {sendResponseWithToken} = require("../../utils/success_response");
-const {getAuth} = require("firebase-admin");
+// const {getAuth} = require("firebase-admin");
+const AppResult = require('../../utils/appResult')
 
-// admin.initializeApp({ // Firebase admin credentials
-//     credential: admin.credential.cert("path/to/cert-file.json"),
-//     databaseURL: "https://yourapphere.firebaseio.com"
-// });
-const { getStorage } = require('firebase-admin/storage');
 
-const admin = require("../../utils/firebaseAdmin")
+const admin = require("../../utils/firebase/firebaseAdmin")
 
 
 
+
+//TODO refactor this to use phone from decoded token
+//TODO refactor the firebase method to its own
 const PhoneRegister = catchAsync(async (req, res, next)=>{
 
     const {firstname, lastname,  phone, password, idToken}= req.body;
     console.log("req.body==>",req.body)
 
 
-
+    let phone_no
     let firebaseId
     try{
         const decodedToken = await admin.auth().verifyIdToken(idToken)
         firebaseId = decodedToken.uid
+        phone_no=decodedToken.phone_number
         console.log("decTOkn=>", decodedToken)
 
     }catch (e){
@@ -113,18 +113,19 @@ const passwordLessWithPhone = catchAsync(async (req, res, next)=>{
     // sendResponse(200, newUser, res);
 
 })
-const verifyToken= async (idToken) => {
 
-
-    try {
-        const decodedToken = await admin.auth().verifyIdToken(idToken)
-
-
-        return decodedToken.uid
-    } catch (e) {
-        throw new Error("verification Failed")
-    }
-}
+// const verifyToken= async (idToken) => {
+//
+//
+//     try {
+//         const decodedToken = await admin.auth().verifyIdToken(idToken)
+//
+//
+//         return decodedToken.uid
+//     } catch (e) {
+//         throw new Error("verification Failed")
+//     }
+// }
 
 
 exports.PhoneForgetPwd= PhoneChangePwd

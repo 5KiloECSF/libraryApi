@@ -1,9 +1,10 @@
-const AppError=require('./appError')
+const AppError=require('../appError')
 const multer=require('multer')
 const path=require('path')
 const sharp = require('sharp');
-const catchAsync = require("./catchAsync");
-
+const catchAsync = require("../catchAsync");
+const uuid = require('uuid')
+const fs = require("fs");
 
 
 
@@ -22,7 +23,13 @@ const multerFilter = (req, file, cb) => {
 //=================== ------------ this Is DiskStorage --------- ================
 const multerDiskStorage = (paths="img")=> multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, path.join(__dirname, "../public/img", paths)); // args - error and destination
+        let dir =path.join(__dirname, "../public/img", paths)
+        console.log(dir)
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir, { recursive: true });
+        }
+
+        cb(null, dir); // args - error and destination
     },
     filename: (req, file, cb) => {
         const ext = file.mimetype.split('/')[1]; // Getting mime type (jpg, jpeg, png..)
@@ -39,7 +46,7 @@ const upload =(paths="")=> multer({
 });
 
 
-exports.uploadSingleImage= (paths)=>upload(paths).single("img")
+exports.uploadSingleImage= (paths)=>upload(paths).single("imageCover")
 
 exports.uploadImages= (paths)=>upload(paths).array("images",5)
 
@@ -53,23 +60,27 @@ const memUpload = multer({
     fileFilter: multerFilter
 });
 
+exports.uploadSingleToMemory=memUpload.single("imageCover");
 exports.uploadImagesToMemory = memUpload.fields([
     { name: 'imageCover', maxCount: 1 },
-    { name: 'images', maxCount: 3 }
+    { name: 'images[]', maxCount: 3 }
 ]);
-
-
 exports.resizeSinglePhoto =(path)=> catchAsync(async (req, res, next) => {
+    console.log("resizingImage")
     if (!req.file) return next();
 
-    req.file.filename = `${path}-${req.user.id}-${Date.now()}.jpeg`;
+    let uid=uuid.v4()
+    req.file.filename = `${path}-${uid}-${Date.now()}.jpeg`;
 
-    await sharp(req.file.buffer)
-        .resize(500, 500)
-        .toFormat('jpeg')
-        .jpeg({ quality: 90 })
-        .toFile(`public/img/${path}/${req.file.filename}`);
-
+    try{
+        await sharp(req.file.buffer)
+            .resize(500, 500)
+            .toFormat('jpeg')
+            .jpeg({ quality: 90 })
+            .toFile(`public/img/${path}/${req.file.filename}`);
+    }catch (e){
+        console.log(e)
+    }
     next();
 });
 
@@ -78,7 +89,7 @@ exports.resizeManyImages =(paths="images")=> catchAsync(async (req, res, next) =
     if (!req.files.imageCover || !req.files.images) return next();
 
     // 1) Cover image
-    req.body.imageCover = `${paths}-${req.params.id}-${Date.now()}-cover.jpeg`;
+    req.body.imageCover = `${paths}-${req.params.id||uuid.v4()}-${Date.now()}-cover.jpeg`;
 
     await sharp(req.files.imageCover[0].buffer)
         .resize(2000, 1333)
@@ -91,7 +102,7 @@ exports.resizeManyImages =(paths="images")=> catchAsync(async (req, res, next) =
 
     await Promise.all(
         req.files.images.map(async (file, i) => {
-            const filename = `${paths}-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
+            const filename = `${paths}-${req.params.id||uuid.v4()}-${Date.now()}-${i + 1}.jpeg`;
 
             await sharp(file.buffer)
                 .resize(2000, 1333)

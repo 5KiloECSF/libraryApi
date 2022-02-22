@@ -19,7 +19,6 @@ const bookSchema = new mongoose.Schema(
     page: {
       type: Number,
     },
-
     genres:[String],
     type:String,  // spiritual, secular //-  ?? could this be a tag/ genre - what if both
     tags:[String], // curch history, selfHelp,
@@ -34,11 +33,13 @@ const bookSchema = new mongoose.Schema(
       summary: {
           type: String,
           trim: true,
+          
           // required: [true, 'A book must have a description']
       },
       description: {
           type: String,
-          trim: true
+          trim: true,
+          
       },
 
     publishedAt:Date,
@@ -48,21 +49,25 @@ const bookSchema = new mongoose.Schema(
       booksAmount: {
           type: Number,
           default:1,
-          required: [true, 'A tour must have a price']
+          // required: [true, 'A tour must have a price']
       },
     currentHolder:{
         type: mongoose.Schema.ObjectId,
         ref: 'User'
     },
+
       queues:[
+
         {
+            
             type: mongoose.Schema.ObjectId,
             ref: 'User'
         }
     ] ,
     borrowingHistory: [
       {
-        type: {
+          
+          type: {
             type: mongoose.Schema.ObjectId,
             ref: 'User'
         },
@@ -74,7 +79,8 @@ const bookSchema = new mongoose.Schema(
     donors: [
       {
         type: mongoose.Schema.ObjectId,
-        ref: 'User'
+        ref: 'User',
+          
       }
     ],
       //-------------------- ratings ------------
@@ -83,7 +89,8 @@ const bookSchema = new mongoose.Schema(
           default: 4.5,
           min: [1, 'Rating must be above 1.0'],
           max: [5, 'Rating must be below 5.0'],
-          set: val => Math.round(val * 10) / 10
+          set: val => Math.round(val * 10) / 10,
+
       },
       ratingsQuantity: {
           type: Number,

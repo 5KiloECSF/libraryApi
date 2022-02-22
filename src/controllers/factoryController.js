@@ -30,7 +30,7 @@ exports.updateOne = (Model) =>
 
 exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
-
+    console.log("creating")
     const newDoc = await Model.create(req.body);
       console.log("creating a user==+>", req.body, "doc==++>", newDoc.id)
     sendResponse(201, newDoc, res);

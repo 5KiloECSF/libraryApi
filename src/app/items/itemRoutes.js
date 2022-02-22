@@ -2,7 +2,7 @@ const express = require('express');
 const itemController = require('./itemController');
 const {  protectRoute,  restrictRole } = require('../../middlewares/authorizeRoute');
 // const reviewRouter = require('../review/reviewRoutes');
-const imageUploads = require("../../utils/imageUploads")
+const imageUploads = require("../../utils/image/apiImageUploads")
 const router = express.Router();
 
 // POST /item/32434fs35/reviews
@@ -16,8 +16,11 @@ router
   .route('/')
   .get(itemController.getAllItems)
   .post(
+      imageUploads.uploadSingleImage("book"),
+      // imageUploads.resizeSinglePhoto("book"),
       // protectRoute, restrictRole('admin', 'lead-guide'),
-      itemController.createItem);
+      itemController.createItem
+  );
 
 router
   .route('/:id')
