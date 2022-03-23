@@ -1,5 +1,5 @@
 const admin = require("../../utils/firebase/firebaseAdmin");
-const AppResult = require("../../utils/appResult");
+const AppResult = require("../response/appResult");
 
 
 const firebaseVerifyToken =async (idToken) => {
@@ -12,6 +12,5 @@ const firebaseVerifyToken =async (idToken) => {
 
     } catch (e) {
         return AppResult.Failure( e)
-
     }
 }

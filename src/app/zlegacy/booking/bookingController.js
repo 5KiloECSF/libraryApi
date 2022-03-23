@@ -2,7 +2,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Tour = require('../tour/tourModel');
 const User = require('../../users/userModel');
 const Booking = require('./bookingModel');
-const catchAsync = require('../../../utils/catchAsync');
+const catchAsync = require('../../../utils/response/catchAsync');
 const factory = require('../../../controllers/factoryController');
 
 

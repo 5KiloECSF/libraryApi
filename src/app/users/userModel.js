@@ -77,6 +77,7 @@ const userSchema = new Schema(
 /**
  * Pre database save operations
  */
+
 userSchema.pre("save", async function (next) {
   //don't hash if not modified password
   if (!this.isModified("password")) return next();

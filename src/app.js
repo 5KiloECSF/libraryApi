@@ -14,7 +14,7 @@ const dotenv = require("dotenv");
 
 dotenv.config({ path: './.env' });
 // import global error handler
-const AppError = require("./utils/appError");
+const AppError = require("./utils/response/appError");
 const globalErrorHandler = require("./app/error/global_error_handler");
 
 //import routes
@@ -67,7 +67,6 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/books", bookRouter);
 
 app.get("/", function (req, res) {
-
   res.status(200).json("hi");
 });
 // app.use("/api/v1/reviews", reviewRouter);

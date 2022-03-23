@@ -11,13 +11,13 @@ const {protectRoute, restrictRole} = require("../../middlewares/authorizeRoute")
 // const {validateInput } = require('../../utils/validate_input');
 
 
-// userRouter.use(protectRoute);
+// userRouter.use(protectRoute)
 
 // users access
 
 
-userRouter.post("/follow", meController.getMe, meController.follow);
-userRouter.delete("/follow", meController.getMe, meController.unFollow);
+// userRouter.post("/follow", meController.getMe, meController.follow);
+// userRouter.delete("/follow", meController.getMe, meController.unFollow);
 
 userRouter.get("/me", meController.getMe, usersController.getUser);
 userRouter.patch("/me/update/:id", meController.updateMe);

@@ -1,8 +1,10 @@
+/**
+ * @class
+ * general result handler class.
+ */
+const log_func = require("../logger");
 
-
-
-class Result  {
-
+class Result {
     /**
      * @constructor
      * @param {boolean} success - whether operation failed or not
@@ -12,13 +14,17 @@ class Result  {
     constructor(success, value, error) {
         this.success = success;
         this.value = value;
-        this.error = success;
+        this.error = error;
     }
-    static Ok(value=null){
+    static Ok(value){
+        // console.log("succesful operarion")
+        log_func("success", value)
+        // console.log("DEBUG", (new Error().stack.split("at ")[2]).trim(), ">>>")
         return new Result(true, value, null )
     }
     static Failure(error=null){
-        console.log("error==", error)
+
+        log_func("error", error)
         return new Result(false, null, error )
     }
     fail(){
@@ -27,6 +33,8 @@ class Result  {
     succeed(){
         return this.success
     }
+
+
 
 
 

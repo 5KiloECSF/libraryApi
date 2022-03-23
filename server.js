@@ -15,7 +15,6 @@ mongoose.connect(LOCAL_DB_URI,
         // useCreateIndex: true,
         // useFindAndModify: false,
         useUnifiedTopology: true,
-
     }).then(conn => {
         console.log("Database connected!")
     }).catch(e => console.log(`Database connection error!=${e}`));

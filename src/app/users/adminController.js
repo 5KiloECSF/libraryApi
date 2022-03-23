@@ -1,9 +1,9 @@
 const User = require("./userModel");
-const AppError = require("../../utils/appError");
-const catchAsync = require("../../utils/catchAsync");
+const AppError = require("../../utils/response/appError");
+const catchAsync = require("../../utils/response/catchAsync");
 
 
-const { sendResponse, sendResponseWithToken,} = require("../../utils/success_response");
+const { sendResponse, sendResponseWithToken,} = require("../../utils/response/success_response");
 
 const controller = require("../../controllers/factoryController");
 

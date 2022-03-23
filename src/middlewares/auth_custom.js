@@ -1,6 +1,6 @@
 // const Review = require("../app/review/reviewModel");
 const Art = require("../app/zlegacy/tour/artModel");
-const AppError = require("../utils/appError");
+const AppError = require("../utils/response/appError");
 
 const {isAdminInWhiteList} = require("./check_admin_white_list");
 

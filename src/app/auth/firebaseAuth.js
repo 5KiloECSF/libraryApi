@@ -1,11 +1,11 @@
 
 
-const catchAsync = require("../../utils/catchAsync");
+const catchAsync = require("../../utils/response/catchAsync");
 const User = require("../users/userModel");
-const AppError = require("../../utils/appError");
-const {sendResponseWithToken} = require("../../utils/success_response");
+const AppError = require("../../utils/response/appError");
+const {sendResponseWithToken} = require("../../utils/response/success_response");
 // const {getAuth} = require("firebase-admin");
-const AppResult = require('../../utils/appResult')
+const AppResult = require('../../utils/response/appResult')
 
 
 const admin = require("../../utils/firebase/firebaseAdmin")

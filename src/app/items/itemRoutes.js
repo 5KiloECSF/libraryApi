@@ -2,7 +2,8 @@ const express = require('express');
 const itemController = require('./itemController');
 const {  protectRoute,  restrictRole } = require('../../middlewares/authorizeRoute');
 // const reviewRouter = require('../review/reviewRoutes');
-const imageUploads = require("../../utils/image/apiImageUploads")
+
+
 const router = express.Router();
 
 // POST /item/32434fs35/reviews
@@ -10,14 +11,13 @@ const router = express.Router();
 // GET /item/32434fs35/reviews/97987dssad8
 // router.route('/:itemId/reviews').post(protect, restrictTo('user'), reviewController.createReview);
 // router.use('/:itemId/reviews', reviewRouter);
-
+const multerSt = require('../../utils/image/multers');
 
 router
   .route('/')
   .get(itemController.getAllItems)
   .post(
-      imageUploads.uploadSingleImage("book"),
-      // imageUploads.resizeSinglePhoto("book"),
+      multerSt.uploadImagesToMemory,
       // protectRoute, restrictRole('admin', 'lead-guide'),
       itemController.createItem
   );
@@ -28,7 +28,7 @@ router
   .patch(
     // protectRoute,
     // restrictRole('admin', 'lead-guide'),
-    //   imageUploads.uploadImagesToMemory,
+
     // imageUploads.resizeManyImages("books"),
     itemController.updateItem
   )

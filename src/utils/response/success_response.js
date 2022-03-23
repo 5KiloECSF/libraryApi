@@ -1,6 +1,6 @@
-const {signJwtToken} = require("./process_JWT");
-const {JWT_COOKIE_EXPIRES_IN} = require("./constants");
-const {isProduction} = require("./constants");
+const {signJwtToken} = require("../process_JWT");
+const {JWT_COOKIE_EXPIRES_IN} = require("../constants");
+const {isProduction} = require("../constants");
 
 const sendResponse = (statusCode, data, res) => {
 

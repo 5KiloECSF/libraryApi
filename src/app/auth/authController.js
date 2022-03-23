@@ -1,7 +1,7 @@
 const User = require('../users/userModel');
-const { sendResponse, sendResponseWithToken } = require('../../utils/success_response');
-const catchAsync = require('../../utils/catchAsync');
-const AppError = require('../../utils/appError');
+const { sendResponse, sendResponseWithToken } = require('../../utils/response/success_response');
+const catchAsync = require('../../utils/response/catchAsync');
+const AppError = require('../../utils/response/appError');
 const Email = require("../../utils/email");
 
 

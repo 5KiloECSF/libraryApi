@@ -1,5 +1,5 @@
-const AppError = require("../utils/appError");
-const catchAsync = require("../utils/catchAsync");
+const AppError = require("../utils/response/appError");
+const catchAsync = require("../utils/response/catchAsync");
 const User = require("../app/users/userModel");
 const {verifyJwtToken} = require("../utils/process_JWT");
 const { isAdminInWhiteList } = require("./check_admin_white_list");

@@ -1,8 +1,8 @@
-const AppError=require('../appError')
+const AppError=require('../response/appError')
 const multer=require('multer')
 const path=require('path')
 const sharp = require('sharp');
-const catchAsync = require("../catchAsync");
+const catchAsync = require("../response/catchAsync");
 const uuid = require('uuid')
 const fs = require("fs");
 
@@ -46,9 +46,9 @@ const upload =(paths="")=> multer({
 });
 
 
-exports.uploadSingleImage= (paths)=>upload(paths).single("imageCover")
+exports.uploadSingleImageToDisk= (paths)=>upload(paths).single("imageCover")
 
-exports.uploadImages= (paths)=>upload(paths).array("images",5)
+exports.uploadImagesToDisk= (paths)=>upload(paths).array("images",5)
 
 
 // =====================  These Are used TO Resize and Upload Images =============
@@ -57,21 +57,24 @@ const multerStorage = multer.memoryStorage();
 
 const memUpload = multer({
     storage: multerStorage,
-    fileFilter: multerFilter
+    // fileFilter: multerFilter
 });
 
 exports.uploadSingleToMemory=memUpload.single("imageCover");
+
 exports.uploadImagesToMemory = memUpload.fields([
     { name: 'imageCover', maxCount: 1 },
     { name: 'images[]', maxCount: 3 }
 ]);
-exports.resizeSinglePhoto =(path)=> catchAsync(async (req, res, next) => {
+
+//this function resizes single image and saves it to Disk
+exports.resizeToFileSinglePhoto =(path)=> catchAsync(async (req, res, next) => {
     console.log("resizingImage")
     if (!req.file) return next();
 
     let uid=uuid.v4()
     req.file.filename = `${path}-${uid}-${Date.now()}.jpeg`;
-
+    console.log("filename=", req.file.filename)
     try{
         await sharp(req.file.buffer)
             .resize(500, 500)
@@ -79,13 +82,14 @@ exports.resizeSinglePhoto =(path)=> catchAsync(async (req, res, next) => {
             .jpeg({ quality: 90 })
             .toFile(`public/img/${path}/${req.file.filename}`);
     }catch (e){
+        console.log("have found error")
         console.log(e)
     }
     next();
 });
 
-
-exports.resizeManyImages =(paths="images")=> catchAsync(async (req, res, next) => {
+//this function resizes many images and saves them to Disk
+exports.resizeToFileManyImages =(paths="images")=> catchAsync(async (req, res, next) => {
     if (!req.files.imageCover || !req.files.images) return next();
 
     // 1) Cover image
@@ -116,3 +120,4 @@ exports.resizeManyImages =(paths="images")=> catchAsync(async (req, res, next) =
 
     next();
 });
+

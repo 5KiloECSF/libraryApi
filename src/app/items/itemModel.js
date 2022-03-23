@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const {string} = require("sharp/lib/is");
 // const User = require('./userModel');
 // const validator = require('validator');
 
@@ -8,14 +9,13 @@ const bookSchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, 'A tour must have a name'],
-      unique: true,
+      // unique: true,
       trim: true,
       maxlength: [60, 'A tour name must have less or equal then 40 characters'],
       minlength: [2, 'A tour name must have more or equal then 10 characters']
       // validate: [validator.isAlpha, 'Tour name must only contain caracters']
     },
     slug: String,
-
     page: {
       type: Number,
     },
@@ -25,15 +25,18 @@ const bookSchema = new mongoose.Schema(
     authors:[String],
     language:String,  //amh, eng
 
-    imageCover: {
-      type: String,
-      required: [true, 'A tour must have a cover image']
+    image: {
+        imageCover:String,
+        imagePath:String,
+        suffix:String,
+        images: [String],
+      // type: String,
+      // required: [true, 'A tour must have a cover image']
     },
-    images: [String],
+
       summary: {
           type: String,
           trim: true,
-          
           // required: [true, 'A book must have a description']
       },
       description: {
@@ -41,11 +44,8 @@ const bookSchema = new mongoose.Schema(
           trim: true,
           
       },
-
     publishedAt:Date,
-
     // ===================== library related properties
-
       booksAmount: {
           type: Number,
           default:1,
@@ -55,18 +55,14 @@ const bookSchema = new mongoose.Schema(
         type: mongoose.Schema.ObjectId,
         ref: 'User'
     },
-
       queues:[
-
         {
-            
             type: mongoose.Schema.ObjectId,
             ref: 'User'
         }
     ] ,
     borrowingHistory: [
       {
-          
           type: {
             type: mongoose.Schema.ObjectId,
             ref: 'User'

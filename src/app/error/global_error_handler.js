@@ -1,4 +1,4 @@
-const AppError = require('../../utils/appError');
+const AppError = require('../../utils/response/appError');
 const {isProduction} = require("../../utils/constants");
 const {isDevelopment} = require("../../utils/constants");
 const ErrorStack = require('./errorModel');

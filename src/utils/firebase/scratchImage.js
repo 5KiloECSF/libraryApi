@@ -39,12 +39,13 @@ const config = require('./config');
 const db = firebase.initializeApp(config.firebaseConfig);
 module.exports = db;
 
-//`````````````` controller.js
+//`````````````` ````````````````````````    controller.js
 
 // const firebase = require('../db');  // reference to our db
 const firestore = firebase.firestore(); // if using firestore
 require("firebase/storage"); // must be required for this to work
 const storage = firebase.storage().ref(); // create a reference to storage
+
 global.XMLHttpRequest = require("xhr2"); // must be used to avoid bug
 const addImage = async (req, res) => {
     try {

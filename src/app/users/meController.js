@@ -1,7 +1,7 @@
-const catchAsync = require("../../utils/catchAsync");
+const catchAsync = require("../../utils/response/catchAsync");
 const User = require("./userModel");
-const AppError = require("../../utils/appError");
-const {sendResponse} = require("../../utils/success_response");
+const AppError = require("../../utils/response/appError");
+const {sendResponse} = require("../../utils/response/success_response");
 
 
 
@@ -61,25 +61,25 @@ const deleteMe = catchAsync(async (req, res, next) => {
     sendResponse(204, null, res);
 });
 
-const follow = catchAsync(async (req, res, next) => {
-    const { targetId } = req.body;
-    const updatedUser = await User.findByIdAndUpdate(req.user.id, {
-        $addToSet: { following: targetId },
-    });
-    sendResponse(204, null, res);
-});
-const unFollow = catchAsync(async (req, res, next) => {
-    const { targetId } = req.body;
-    const updatedUser = await User.findByIdAndUpdate(req.user.id, {
-        $pull: { following: targetId },
-    });
-
-    sendResponse(204, null, res);
-});
+// const follow = catchAsync(async (req, res, next) => {
+//     const { targetId } = req.body;
+//     const updatedUser = await User.findByIdAndUpdate(req.user.id, {
+//         $addToSet: { following: targetId },
+//     });
+//     sendResponse(204, null, res);
+// });
+// const unFollow = catchAsync(async (req, res, next) => {
+//     const { targetId } = req.body;
+//     const updatedUser = await User.findByIdAndUpdate(req.user.id, {
+//         $pull: { following: targetId },
+//     });
+//
+//     sendResponse(204, null, res);
+// });
 
 exports.getMe =getMe
 exports.updateMe = updateMe
 exports.deleteMe = deleteMe
 
-exports.follow = follow
-exports.unFollow = unFollow
+// exports.follow = follow
+// exports.unFollow = unFollow

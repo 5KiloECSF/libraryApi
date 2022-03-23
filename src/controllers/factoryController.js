@@ -1,6 +1,6 @@
-const { sendResponse } = require("../utils/success_response");
-const catchAsync = require("../utils/catchAsync");
-const AppError = require("../utils/appError");
+const { sendResponse } = require("../utils/response/success_response");
+const catchAsync = require("../utils/response/catchAsync");
+const AppError = require("../utils/response/appError");
 const ApiFilters = require("./apiFeatures");
 
 exports.deleteOne = (Model) =>
@@ -70,7 +70,7 @@ exports.getAll = (Model) =>
     // excute query
       // const doc = await features.query.explain();
     const doc = await features.query;
-    console.log("QueryRes==<>", doc)
+    // console.log("QueryRes==<>", doc)
     // send responce to client
     sendResponse(200, doc, res);
   });
