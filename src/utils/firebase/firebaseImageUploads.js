@@ -34,6 +34,15 @@ const toBeRemoved = "https://storage.googleapis.com/webproj1-a.appspot.com/"
 const ToBeAdded= "https://firebasestorage.googleapis.com/v0/b/webproj1-a.appspot.com/o/"
 const pre3= "gs://webproj1-a.appspot.com"
 
+exports.deleteAllImages=async ()=>{
+    try {
+        const res = await storageRef.deleteFiles()
+        return Result.Ok(res)
+    } catch (e) {
+        return Result.Failed(e)
+    }
+}
+
 //gets the id of an image and deletes it from firebase
 exports.deleteFirebaseImage=async (id) => {
     let url1=""
@@ -46,7 +55,7 @@ exports.deleteFirebaseImage=async (id) => {
 
 
     } catch (e) {
-        return Result.Failure(e)
+        return Result.Failed(e)
     }
 
 }
@@ -56,7 +65,7 @@ exports.deleteFirebaseImage=async (id) => {
 const resizeSinglePic = async (file) => {
     console.log("resizingImage")
     // memUpload.single("imageCover")
-    if (!file) return Result.Failure(new Error("no image found"));
+    if (!file) return Result.Failed(new Error("no image found"));
 
     // const pixelArray = new Uint8ClampedArray(file.buffer);
 
@@ -68,9 +77,9 @@ const resizeSinglePic = async (file) => {
             .jpeg({ mozjpeg: true })
             .resize(500, 500)
             .toBuffer()
-        return Result.Ok(data)
+        return Result.Ok(data, false)
     }catch (e){
-        return Result.Failure(e)
+        return Result.Failed(e)
     }
 
 };
@@ -94,18 +103,18 @@ const uploadToFirebaseFunc= async (fName, file) => {
 
     } catch (e) {
         log_func("firebase_err=-", e)
-        return  Result.Failure(e)
+        return  Result.Failed(e)
     }
 }
 
 //this func calls the resize func then the upload to firebase func
 //
 const uploadSingleImage= async (file, fName)=>{
-    if (!file) return Result.Failure("no image file")
+    if (!file) return Result.Failed("no image file")
     const res =await resizeSinglePic(file)
     // console.log("zRes=", res)
     if(res.fail()){
-        return Result.Failure(res.error)
+        return Result.Failed(res.error)
     }
     console.log("resizing finished")
 

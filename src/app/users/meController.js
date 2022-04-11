@@ -30,7 +30,6 @@ const updateMe = catchAsync(async (req, res, next) => {
         req.body,
         "firstname",
         "lastname",
-        "phone",
         "email"
     );
     // 3) Update user document

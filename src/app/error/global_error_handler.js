@@ -2,7 +2,7 @@ const AppError = require('../../utils/response/appError');
 const {isProduction} = require("../../utils/constants");
 const {isDevelopment} = require("../../utils/constants");
 const ErrorStack = require('./errorModel');
-
+const log_func=require("../../utils/logger")
 const saveError = async err => {
     const newError = await ErrorStack.create({
         status: err.status,
@@ -86,6 +86,7 @@ const global_error_handler = (err, req, res, next) => {
 
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
+    log_func("status==", {status:err.statusCode, name:err.name, message:err.message})
 
     if (isDevelopment()) {
         sendErrorDev(err, res);

@@ -6,11 +6,10 @@ const AppError = require('../../utils/response/appError');
 const {sendResponse} = require("../../utils/response/success_response");
 const log_func=require("../../utils/logger")
 
-const {deleteFirebaseImage, uploadToFirebaseFunc, uploadSingleImage} = require("../../utils/firebase/firebaseImageUploads");
-const {login} = require("../auth/authController");
-const uuid = require("uuid");
-const sharp = require("sharp");
-// const {uploadSingleImage} = require("../../utils/firebase/firebaseImageUploads");
+const {deleteFirebaseImage, uploadToFirebaseFunc, uploadSingleImage, deleteAllImages} = require("../../utils/firebase/firebaseImageUploads");
+
+const {uploadNewImage, uploadNewImages} = require("../../utils/image/fullImg");
+
 
 
 exports.getAllItems = factory.getAll(Item);
@@ -24,7 +23,6 @@ exports.aliasTopItems = (req, res, next) => {
   req.query.limit = '5';
   req.query.sort = '-ratingsAverage,price';
   req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
-
   next();
 };
 const filterObj = (obj, ...allowedFields) => {
@@ -38,7 +36,6 @@ const filterObj = (obj, ...allowedFields) => {
 const allowedUpdate=["genres", "name", "tags", "description", "authors", "borrowingHistory"]
 
 exports.UpdateBook=catchAsync(async (req, res,next)=>{
-
     const filteredBody = filterObj(req.body, allowedUpdate);
     const doc = await Item.findByIdAndUpdate(req.params.id, filteredBody, {
         new: true,
@@ -49,9 +46,7 @@ exports.UpdateBook=catchAsync(async (req, res,next)=>{
         if (result.fail()){
             log_func("updating image failed")
         }
-
     }
-
     if (!doc)
         return next(new AppError("No document found with given id!", 404));
 
@@ -66,104 +61,84 @@ exports.deleteItem=catchAsync(async (req,res,next)=>{
         if (!doc)
             return next(new AppError("No document found with given id!", 404));
 
-        const re= await deleteFirebaseImage(doc.imageCover.img)
+        const re= await deleteFirebaseImage(doc.image.id)
         if(re.fail()){
             log_func("deleting image failed", re)
         }
     }catch (e){
         log_func("error", e)
-
     }
 
     res.status(204).json({
         status:"NoContent",
-
     })
     // res.json(re)
     // sendResponse(204, null, re);
 })
 
+exports.deleteAllItem=catchAsync(async (req,res,next)=>{
+
+    try{
+        const doc = await Item.deleteMany();
+
+        if (!doc)
+            return next(new AppError("No document found with given id!", 404));
+
+        const re= await deleteAllImages()
+        if(re.fail()){
+            log_func("deleting image failed", re)
+        }
+    }catch (e){
+        log_func("error", e)
+    }
+    res.status(204).json({
+        status:"NoContent",
+    })
+})
 exports.createItem=catchAsync(async (req,res,next)=>{
 
 
-    const body=req.body;
-    console.log("creating BOdy===>", body)
-    if(req.file){
+    try{
+        const body=req.body;
+        log_func("creating BOdy===>", body)
+        if(!req.files){
+            return new AppError("NO images found", 502)
+        }
+        //FIXME to be removed
+        if(req.file){
+            log_func('info',"HAVE single file" )
+            let imag= await uploadNewImage(req.file, "")
+            if (imag.fail()){
+                return new AppError("uploading error", 502)
+            }
+            body.image=imag.value
 
-        const result=await  uploadSingleImage(req.file)
-        // console.log("result", result)
-        if (result.fail()){
+        }
+
+        let imag= await uploadNewImages(req.files)
+        if (imag.fail()){
             return new AppError("uploading error", 502)
         }
-        // console.log("filename", req.file.filename)
-        body.image.imageCover=result.value.name
-        body.image.suffix=result.value.suffix
-        body.image.imagePath=result.value.imagePath
+        body.image=imag.value
+
+
+        const item=await Item.create({
+            ...body,
+        })
+        res.status(201).json({
+            status:"success",
+            item
+        })
+        // console.log("200")
+    }catch (e){
+        log_func("CreateError=", e.message)
+        res.status(500).json({
+            status:"error",
+
+        })
     }
-    if(req.files){
-        // if (!req.files.imageCover || !req.files.images) return next();
-        let uid=uuid.v4()
-        body.image={}
-        body.image.images=[]
-
-        const covr= req.files.imageCover[0]
-        const name = covr.originalname.split(".")[0].trim();
-        const type = covr.originalname.split(".")[1];
-
-        let fName = `${uid}-${name}-${Date.now()}.${type}`;
-
-        const result=await  uploadSingleImage(req.files.imageCover[0].buffer, fName)
-        // console.log("result", result)
-        if (result.fail()){
-            return new AppError("uploading error", 502)
-        }
-        console.log("result==>",result)
-        // console.log("filename", req.file.filename)
-        body.image.imageCover=result.value.name
-        body.image.suffix=result.value.suffix
-        body.image.imagePath=result.value.imagePath
 
 
-        //-------------------- multiple image
-        await Promise.all(
-            req.files.images.map(async (file, i) => {
-                console.log("iterating``````````",i,"---->", file)
-
-                let names =file.originalname.split(".")
-                let ext=names[names.length-1]
-                console.log("ext==", ext)
-
-                const filename = `${uid}-${Date.now()}-${i + 1}.${ext}`;
-                console.log("fname````````...>",i, filename)
-
-                const result= await  uploadSingleImage(file.buffer,  filename)
-                if (result.fail()){
-                    console.log("err=>",result.error)
-                    return new AppError("uploading error", 502)
-                }
-
-                body.image.images.push(result.value.name)
-                console.log("bdy.img===", body.image.images)
-
-
-            })
-        );
-        // req.files.images.forEach(async ( e ) =>  {
-        //
-        //     const result= await  uploadSingleImage(e.buffer, "", uid)
-        //     body.images.push(result.value.name)
-        // })
-        console.log("multi images=--->", body.image)
-    }
-    // console.log("here with body------------>", body)
-    // console.log("here with req------------>", req.files)
-
-    const item=await Item.create({
-        ...body,
-    })
-    res.status(201).json({
-        status:"success",
-        item
-    })
-    console.log("200")
 })
+
+

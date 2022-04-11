@@ -33,7 +33,6 @@ const userUpdateRule = () => {
             .isEmpty()
             .isLength({ min: 6 })
             .withMessage("password should be at least 6 character long"),
-
     ];
 };
 

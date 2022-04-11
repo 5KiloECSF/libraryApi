@@ -16,13 +16,16 @@ class Result {
         this.value = value;
         this.error = error;
     }
-    static Ok(value){
+    static Ok(value, log=true){
         // console.log("succesful operarion")
-        log_func("success", value)
+        if(log){
+            log_func("success", value)
+        }
+
         // console.log("DEBUG", (new Error().stack.split("at ")[2]).trim(), ">>>")
         return new Result(true, value, null )
     }
-    static Failure(error=null){
+    static Failed(error=null){
 
         log_func("error", error)
         return new Result(false, null, error )

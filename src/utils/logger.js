@@ -40,7 +40,7 @@ const log_func=(name, value)=>{
         default:
             val=FgBlue
     }
-    console.log(val,"DEBUG" , name,"--->",value, "---",Reset, (new Error().stack.split("at ")[3]).trim(), ">>>")
+    console.log(val,"DEBUG" , name,"--->",JSON.stringify(value), "---",Reset, (new Error().stack.split("at ")[3]).trim(), ">>>")
 }
 
 module.exports=log_func

@@ -8,11 +8,11 @@ const bookSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'A tour must have a name'],
+      required: [true, 'A book must have a name'],
       // unique: true,
       trim: true,
-      maxlength: [60, 'A tour name must have less or equal then 40 characters'],
-      minlength: [2, 'A tour name must have more or equal then 10 characters']
+      maxlength: [60, 'A book name must have less or equal then 40 characters'],
+      minlength: [2, 'A book name must have more or equal then 10 characters']
       // validate: [validator.isAlpha, 'Tour name must only contain caracters']
     },
     slug: String,
@@ -26,14 +26,14 @@ const bookSchema = new mongoose.Schema(
     language:String,  //amh, eng
 
     image: {
+        id:String,
         imageCover:String,
         imagePath:String,
         suffix:String,
         images: [String],
       // type: String,
-      // required: [true, 'A tour must have a cover image']
+      // required: [true, 'A book must have a cover image']
     },
-
       summary: {
           type: String,
           trim: true,
@@ -49,7 +49,7 @@ const bookSchema = new mongoose.Schema(
       booksAmount: {
           type: Number,
           default:1,
-          // required: [true, 'A tour must have a price']
+          // required: [true, 'A book must have a price']
       },
     currentHolder:{
         type: mongoose.Schema.ObjectId,
@@ -63,10 +63,12 @@ const bookSchema = new mongoose.Schema(
     ] ,
     borrowingHistory: [
       {
-          type: {
+        userId: {
             type: mongoose.Schema.ObjectId,
             ref: 'User'
         },
+       fullName:String,
+        isActive:Boolean,
         startDate: Date,
         endDate: Date,
 
@@ -74,9 +76,12 @@ const bookSchema = new mongoose.Schema(
     ],
     donors: [
       {
-        type: mongoose.Schema.ObjectId,
-        ref: 'User',
-          
+          userId: {
+              type: mongoose.Schema.ObjectId,
+              ref: 'User'
+          },
+          fullName:String,          
+          donationDate: Date,         
       }
     ],
       //-------------------- ratings ------------
@@ -146,25 +151,25 @@ module.exports = Book;
 // });
 
 
-// tourSchema.pre('save', async function(next) {
+// bookSchema.pre('save', async function(next) {
 //   const guidesPromises = this.guides.map(async id => await User.findById(id));
 //   this.guides = await Promise.all(guidesPromises);
 //   next();
 // });
-// tourSchema.pre('save', function(next) {
+// bookSchema.pre('save', function(next) {
 //   console.log('Document will save....');
 //   next();
 // });
-// tourSchema.post('save', function(doc, next) {
+// bookSchema.post('save', function(doc, next) {
 //   console.log(doc);
 //   next();
 // });
-// tourSchema.post(/^find/, function(docs, next) {
+// bookSchema.post(/^find/, function(docs, next) {
 //   console.log(`Query took ${Date.now() - this.start} millisecnds!`);
 //   next();
 // });
 // AGGREGATION MIDDLEWARE
-// tourSchema.pre('aggregate', function(next) {
+// bookSchema.pre('aggregate', function(next) {
 //   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } }); // removing all the documents from the output which have secretTour set to true
 //   console.log(this.pipeline());
 //   next();

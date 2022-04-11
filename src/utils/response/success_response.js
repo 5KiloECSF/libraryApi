@@ -2,14 +2,13 @@ const {signJwtToken} = require("../process_JWT");
 const {JWT_COOKIE_EXPIRES_IN} = require("../constants");
 const {isProduction} = require("../constants");
 
-const sendResponse = (statusCode, data, res) => {
+const sendResponse = (statusCode, value, res) => {
 
     res.status(statusCode).send({
         status: "success",
-        message: {
-            results: data instanceof Array ? data.length : undefined,
-            data
-        }
+        value,
+        results: value instanceof Array ? value.length : undefined,
+
     });
 }
 

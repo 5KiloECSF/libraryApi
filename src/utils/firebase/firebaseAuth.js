@@ -11,6 +11,6 @@ const firebaseVerifyToken =async (idToken) => {
         return new AppResult.Ok( decodedToken)
 
     } catch (e) {
-        return AppResult.Failure( e)
+        return AppResult.Failed( e)
     }
 }

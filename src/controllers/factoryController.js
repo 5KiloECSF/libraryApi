@@ -55,9 +55,11 @@ exports.getAll = (Model) =>
 
       // To allow for nested GET reviews an art (hack)
     let idFilter = {};
-    //if it is requesting for reviews with this tourId
+
+    //if it is requesting for reviews with this tourId ----- reviews will have tourId
     if (req.params.tourId) idFilter = { tourId: req.params.tourId };
-    //if it is requesting for tours with this categoryID
+
+    //if it is requesting for tours with this categoryID---- items will have category id
     if (req.params.ctgId) idFilter = { ctgId: req.params.ctgId };
 
     // apply api features on given query
@@ -65,7 +67,7 @@ exports.getAll = (Model) =>
       .filter()
       .sort()
       .limitFields()
-      .pagination();
+      .pagination()
 
     // excute query
       // const doc = await features.query.explain();

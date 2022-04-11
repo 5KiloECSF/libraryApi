@@ -20,7 +20,9 @@ router
       multerSt.uploadImagesToMemory,
       // protectRoute, restrictRole('admin', 'lead-guide'),
       itemController.createItem
-  );
+  ).delete(
+      itemController.deleteAllItem
+);
 
 router
   .route('/:id')
