@@ -85,7 +85,7 @@ const resizeSinglePic = async (file) => {
 };
 
 //gets a file name & a buffer file, and uploads the file to firebase -> returns an object{imageCover:{img:"name", suffix:""},imagePath:"" }
-const uploadToFirebaseFunc= async (fName, file) => {
+const FUploadToFirebaseFunc= async (fName, file) => {
     try {
         log_func("file name on func", fName)
         const fFile = await storageRef.file(fName)
@@ -107,10 +107,16 @@ const uploadToFirebaseFunc= async (fName, file) => {
     }
 }
 
+// ===========  Calls Resize && Calls UploadFirebase,,,,,,, Also Use full For Updating  ==============
+// ----------------------------------------------------------------------
 //this func calls the resize func then the upload to firebase func
-//
-const uploadSingleImage= async (file, fName)=>{
+/**
+ * @param {file.buffer} file - the buffer of the file
+ * @param {string} fName - Name of the image
+ */
+const IUploadSingleImage= async (file, fName)=>{
     if (!file) return Result.Failed("no image file")
+
     const res =await resizeSinglePic(file)
     // console.log("zRes=", res)
     if(res.fail()){
@@ -118,17 +124,18 @@ const uploadSingleImage= async (file, fName)=>{
     }
     console.log("resizing finished")
 
-    return await uploadToFirebaseFunc(fName, res.value)
+    return await FUploadToFirebaseFunc(fName, res.value)
 }
 
 
 
+exports.FUploadToFirebaseFunc=FUploadToFirebaseFunc;
+module.exports.IUploadSingleImage = IUploadSingleImage;
 
-module.exports.uploadSingleImage = uploadSingleImage;
 
-
-
+// ==================    Middleware ===============================
 // this gets file from request and uploads it to firebase
+
 exports.uploadTOFirebase =(path)=> catchAsync(async (req, res, next) => {
     // console.log("resizingImage")
     const file = req.file;
@@ -146,6 +153,7 @@ exports.uploadTOFirebase =(path)=> catchAsync(async (req, res, next) => {
     try{
         const fFile= await storageRef.file(fName)
         await fFile.save(file.buffer, { contentType: 'image/jpeg'  });
+
         req.file.filename= fFile.publicUrl()
     }catch (e){
         console.log("have found error")

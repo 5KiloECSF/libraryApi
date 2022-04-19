@@ -27,4 +27,9 @@ exports.uploadImagesToMemory = memUpload.fields([
     { name: 'imageCover', maxCount: 1 },
     { name: 'images', maxCount: 3 }
 ]);
+exports.uploadUpdatedImages = memUpload.fields([
+    { name: 'imageCover', maxCount: 1 },
+    { name: 'addedImages', maxCount: 3 },
+    { name: 'updatedImages', maxCount: 3 },
+]);
 

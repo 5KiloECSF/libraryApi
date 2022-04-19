@@ -8,13 +8,13 @@ const crypo = require('crypto');
 
 const userSchema = new Schema(
   {
-    firstname: {
+    firstName: {
       type: String,
       required: [true, "first name is required"],
       minlength: [2, "first name should contain atleast 2 characters!"],
       maxlength: [24, "first name should contain at maximum 24 characters!"],
     },
-    lastname: {
+    lastName: {
       type: String,
       required: [true, "last name is required"],
       minlength: [2, "last name should contain atleast 2 characters!"],
@@ -23,7 +23,7 @@ const userSchema = new Schema(
     email: {
       type: String,
       // required: [true, "user should have email!"],
-      unique: true,
+      // unique: true,
       lowercase: true,
       validate: [validator.isEmail, "Invalid email. Please use valid email!"],
     },

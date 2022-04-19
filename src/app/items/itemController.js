@@ -6,9 +6,10 @@ const AppError = require('../../utils/response/appError');
 const {sendResponse} = require("../../utils/response/success_response");
 const log_func=require("../../utils/logger")
 
-const {deleteFirebaseImage, uploadToFirebaseFunc, uploadSingleImage, deleteAllImages} = require("../../utils/firebase/firebaseImageUploads");
+const {deleteFirebaseImage, uploadToFirebaseFunc, IUploadSingleImage, deleteAllImages} = require("../../utils/firebase/firebaseImageUploads");
 
-const {uploadNewImage, uploadNewImages} = require("../../utils/image/fullImg");
+const {upload1ImageWithNewName, uploadNewImages, uploadImagesWIthGivenNames, uploadImagesWithNewNames} = require("../../utils/image/3ImageFunc");
+const {promise} = require("bcrypt/promises");
 
 
 
@@ -42,7 +43,7 @@ exports.UpdateBook=catchAsync(async (req, res,next)=>{
         runValidators: true,
     });
     if (req.file){
-        let result = await uploadSingleImage(req.file, doc.imageCover.img)
+        let result = await IUploadSingleImage(req.file, doc.imageCover.img)
         if (result.fail()){
             log_func("updating image failed")
         }
@@ -63,7 +64,7 @@ exports.deleteItem=catchAsync(async (req,res,next)=>{
 
         const re= await deleteFirebaseImage(doc.image.id)
         if(re.fail()){
-            log_func("deleting image failed", re)
+            log_func("deleting image failed", re.value)
         }
     }catch (e){
         log_func("error", e)
@@ -95,19 +96,19 @@ exports.deleteAllItem=catchAsync(async (req,res,next)=>{
         status:"NoContent",
     })
 })
-exports.createItem=catchAsync(async (req,res,next)=>{
 
+exports.createItem=catchAsync(async (req,res,next)=>{
 
     try{
         const body=req.body;
-        log_func("creating BOdy===>", body)
+        // log_func("creating BOdy===>", body)
         if(!req.files){
             return new AppError("NO images found", 502)
         }
         //FIXME to be removed
         if(req.file){
             log_func('info',"HAVE single file" )
-            let imag= await uploadNewImage(req.file, "")
+            let imag= await upload1ImageWithNewName(req.file, "")
             if (imag.fail()){
                 return new AppError("uploading error", 502)
             }
@@ -142,3 +143,69 @@ exports.createItem=catchAsync(async (req,res,next)=>{
 })
 
 
+exports.UpdateItem=catchAsync(async (req, res,next)=>{
+    try{
+        if(req.files){
+            let files = req.files
+            //---------------  1-if the image cover has changed
+            if(req.body.coverImage && files.imageCover){
+                let result = await IUploadSingleImage(req.files.imageCover[0].buffer, req.body.image.imageCover)
+                if (result.fail()){
+                    log_func("updating image failed")
+                }
+            }
+            // 2: if other images have changed
+            if(files.updatedImages){
+                const res= uploadImagesWIthGivenNames(req.files.updatedImages, req.body.updatedImages)
+                if (res.fail()){
+                    log_func("updating image failed")
+                }
+            }
+            // 3: if new images have been added
+            if(req.body.addedImages){
+                const res =uploadImagesWithNewNames(req.files.addedImages, req.body.image.id)
+                if (res.fail()){
+                    log_func("adding images failed")
+                }
+                req.body.image.images=[...req.body.image.images, ...res.value]
+            }
+        //    4: if images have been removed
+            let removedImages=req.body.removedImages
+            if(removedImages){
+                await Promise.all(
+                    removedImages.map(async (fileName, i)=>{
+                        const re= await deleteFirebaseImage(fileName)
+                        if(re.fail()){
+                            log_func("deleting image failed", re)
+                        }
+
+                    })
+                )
+                req.body.image.images=req.body.image.images.filter((name) => {
+                    // return those elements not in the namesToDeleteSet
+                    return !removedImages.has(name);
+                })
+
+            }
+
+
+
+
+
+        }
+
+        const filteredBody = filterObj(req.body, allowedUpdate);
+        const doc = await Item.findByIdAndUpdate(req.params.id, filteredBody, {
+            new: true,
+            runValidators: true,
+        });
+
+        if (!doc)
+            return next(new AppError("No document found with given id!", 404));
+
+        sendResponse(202, doc, res);
+    }catch (e){
+
+    }
+
+})

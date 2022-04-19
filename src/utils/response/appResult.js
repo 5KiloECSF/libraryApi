@@ -36,12 +36,6 @@ class Result {
     succeed(){
         return this.success
     }
-
-
-
-
-
-
 }
 
 module.exports = Result;
