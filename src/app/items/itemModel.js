@@ -42,7 +42,6 @@ const bookSchema = new mongoose.Schema(
       description: {
           type: String,
           trim: true,
-          
       },
     publishedAt:Date,
     // ===================== library related properties

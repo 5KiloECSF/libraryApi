@@ -12,6 +12,12 @@ const sendResponse = (statusCode, value, res) => {
     });
 }
 
+const sendErrorResponse=(statusCode, value, res)=>{
+    res.status(statusCode).send({
+        status:"error"
+    })
+}
+
 const sendError = (statusCode, data, res) => {
 
     res.status(statusCode).send({

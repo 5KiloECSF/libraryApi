@@ -13,7 +13,7 @@ mongoose.connect(LOCAL_DB_URI,
     {
         useNewUrlParser: true,
         // useCreateIndex: true,
-        // useFindAndModify: false,
+        useFindAndModify: false,
         useUnifiedTopology: true,
     }).then(conn => {
         console.log("Database connected!")

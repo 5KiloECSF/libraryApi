@@ -1,8 +1,10 @@
-const AppError = require('../../utils/response/appError');
+
 const {isProduction} = require("../../utils/constants");
 const {isDevelopment} = require("../../utils/constants");
 const ErrorStack = require('./errorModel');
 const log_func=require("../../utils/logger")
+const SetError= require('./dtErrors')
+
 const saveError = async err => {
     const newError = await ErrorStack.create({
         status: err.status,
@@ -13,13 +15,6 @@ const saveError = async err => {
 
     return newError.id;
 };
-
-
-
-
-
-
-
 
 
 //sends development errors
@@ -58,50 +53,45 @@ const sendErrorProd =async (err, res) => {
 
 }
 
-//=================  Different type of errors ===================
-const handleDBcastError = err => {
-    const message = `Invalid ${err.path} with value ${err.value}`;
-    return new AppError(message, 400);
-}
 
-const handleDBduplicateFieldError = err => {
-    const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
-
-    const message = `Duplicate field value: ${value}. Please use another value!`;
-    return new AppError(message, 400);
-}
-
-const handleDBvalidationError = err => {
-    const errors = Object.values(err.errors).map(el => el.message);
-
-    const message = `Invalid input data. ${errors.join('. ')}`;
-    return new AppError(message, 400);
-}
-
-
-const handleJWTError = () => new AppError('Invalid token. Please log in again!', 401);
-const handleJWTExpireError = (err) => new AppError('Your token has expired! Please log in again.', 401)
 //Functions
 const global_error_handler = (err, req, res, next) => {
 
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
     log_func("status==", {status:err.statusCode, name:err.name, message:err.message})
-
     if (isDevelopment()) {
         sendErrorDev(err, res);
     } else if (isProduction()) {
-
-        let error = { message: err.message, ...err };
-        if (err.name === 'CastError') error = handleDBcastError(error);
-        if (err.code === 11000) error = handleDBduplicateFieldError(error);
-        if (err.name === 'ValidationError') error = handleDBvalidationError(error);
-        if (err.name === 'JsonWebTokenError') error = handleJWTError(error);
-        if (err.name === 'TokenExpiredError') error = handleJWTExpireError(error);
-
+        let error = SetError(err)
+        sendErrorProd(error, res);
+        err.status = err.status || 'error';
+    }else {
         sendErrorProd(error, res);
     }
+
 };
 
+
+
+
+const handleError=(err, res)=>{
+    err.statusCode = err.statusCode || status;
+    if (isDevelopment()) {
+        log_func("dev")
+        sendErrorDev(err, res);
+    } else if (isProduction()) {
+        log_func('prod')
+        let error = SetError(err)
+        sendErrorProd(error, res);
+        err.status = err.status || 'error';
+    }else {
+        log_func("in Else")
+        sendErrorProd(error, res);
+    }
+
+}
+
+exports.handleError=handleError
 module.exports= global_error_handler
 

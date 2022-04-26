@@ -25,9 +25,10 @@ class Result {
         // console.log("DEBUG", (new Error().stack.split("at ")[2]).trim(), ">>>")
         return new Result(true, value, null )
     }
-    static Failed(error=null){
+    static Failed(error=null, name=""){
 
-        log_func("error", error)
+        log_func("error", name,)
+        log_func("error", error,)
         return new Result(false, null, error )
     }
     fail(){

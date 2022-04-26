@@ -50,12 +50,12 @@ exports.deleteFirebaseImage=async (id) => {
     try {
 
         const res = await storageRef.deleteFiles({prefix: id})
-
+        log_func("success", "succesfully deleted an image")
         return Result.Ok(res)
 
 
     } catch (e) {
-        return Result.Failed(e)
+        return Result.Failed(e, "failed to delete firebase image")
     }
 
 }

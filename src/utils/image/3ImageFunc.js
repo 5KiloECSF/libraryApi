@@ -44,29 +44,35 @@ const upload1ImageWithNewName= async (file, uid)=>{
 
 const uploadImagesWithNewNames=async (files, uid)=>{
     const names=[]
-    await Promise.all(
-        files.map(async (file, i) => {
-            // console.log("iterating ``````````", i,"---->", file)
+    try{
+        await Promise.all(
+            files.map(async (file, i) => {
+                // console.log("iterating ``````````", i,"---->", file)
 
-            let name =file.originalname.split(".")
-            let ext=name[name.length-1]
+                let name =file.originalname.split(".")
+                let ext=name[name.length-1]
 
 
-            const filename = `${uid}-${Date.now()}-${i + 1}.${ext}`;
-            // console.log("******************fname````````...>",i, filename)
+                const filename = `${uid}-${Date.now()}-${i + 1}.${ext}`;
+                // console.log("******************fname````````...>",i, filename)
 
-            const result= await  IUploadSingleImage(file.buffer,  filename)
-            if (result.fail()){
-                console.log("err=>",result.error)
-                return Result.Failed("failed uploading multi images, in a loop")
-            }
+                const result= await  IUploadSingleImage(file.buffer,  filename)
+                if (result.fail()){
+                    console.log("err=>",result.error)
+                    return Result.Failed("failed uploading multi images, in a loop")
+                }
 
-            names.push(result.value.name)
-            console.log("bdy.img===", names)
-        })
-    );
+                names.push(result.value.name)
+                console.log("bdy.img===", names)
+            })
+        );
+        log_func("success", "Successfully uploaded Images With new name")
+        return Result.Ok(names)
+    }catch (e){
+        return Result.Failed(e)
+    }
 
-    return Result.Ok(names)
+
 
 }
 
@@ -99,22 +105,30 @@ const uploadNewImages=async (files) => {
 }
 // For Updating many Images with a name
 const uploadImagesWIthGivenNames= async (files, fileNames)=>{
-    if (files.length>0 && fileNames.length===files.length  ){
-        let images=[]
+    try{
+        if ( !Array.isArray(fileNames)){
+            fileNames=[fileNames]
+        }
+        if (files.length>0 && fileNames.length===files.length  ){
+            let images=[]
 
-        await Promise.all(
-            files.map(async (file, i) => {
-                const result= await  IUploadSingleImage(file.buffer,  fileNames[i])
-                if (result.fail()){
-                    console.log("err=>",result.error)
-                    return result
-                }
-                images.push(result.value.name)
-            })
-        );
-        return Result.Ok(images)
+            await Promise.all(
+                files.map(async (file, i) => {
+                    const result= await  IUploadSingleImage(file.buffer,  fileNames[i])
+                    if (result.fail()){
+                        console.log("err=>",result.error)
+                        return result
+                    }
+                    images.push(result.value.name)
+                })
+            );
+            return Result.Ok(images)
 
+        }
+    }catch (e){
+        return Result.Failed("uploading many Images with given names failed")
     }
+
 }
 //
 
