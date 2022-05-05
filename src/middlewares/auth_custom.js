@@ -13,8 +13,7 @@ const isArtOwner= (access) => {
         let isAdminRole = isAdminInWhiteList(req.user) && access && access.admin;
         if (!(isAllowed || isAdminRole))
             //and if not already sold
-            next(
-                new AppError("You don't have permission to modify this documnet!", 403)
+            next(new AppError("You don't have permission to modify this documnet!", 403)
             );
         next();
     };

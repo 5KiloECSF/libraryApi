@@ -1,5 +1,6 @@
 class APIFeatures {
   constructor(query, queryString) {
+    //this is a query by id of pre definded obj
     this.query = query;
     this.queryString = queryString;
   }
@@ -19,15 +20,24 @@ class APIFeatures {
     return this;
   }
 
+  //example sort== "name:desc,age:ase"
   sort() {
     // sorting query
     if (this.queryString.sort) {
+      const sortingCriteria = [];
+      let sort=''
       let sortBy = this.queryString.sort;
-      sortBy = sortBy.split(",").join(" ");
-      this.query = this.query.sort(sortBy);
+      // sortBy = sortBy.split(",").join(" ");
+      sortBy.split(',').forEach((sortOption) => {
+        const [key, order] = sortOption.split(':');
+        sortingCriteria.push((order === 'desc' ? '-' : '') + key);
+      });
+      sort = sortingCriteria.join(' ');
+      this.query = this.query.sort(sort);
     } else {
       // default sort using date
-      this.query = this.query.sort("-price");
+      this.query = this.query.sort("createdAt");
+      // this.query = this.query.sort("-price");
     }
 
     return this;

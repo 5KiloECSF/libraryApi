@@ -7,8 +7,12 @@ const log_func = require("../../utils/logger");
 
 // ------------------------------  Gives new name To Image & uploads them to firebase  ------------------
 //---------: this accepts the general file from the request, which have imageCOver && images
-const upload1ImageWithNewName= async (file, uid)=>{
-    if(!uid){
+/**
+ * @param {file} file - a file object from request-{req.file.images{buffer, originalname}}
+ * @param {string} uid - Unique ID to save the images with, optional
+ */
+const upload1ImageWithNewName= async (file, uid="")=>{
+    if(uid===""){
         uid=uuid.v4()
     }
     if (!file ) {
@@ -37,11 +41,15 @@ const upload1ImageWithNewName= async (file, uid)=>{
     img.imageCover = result.value.name
     img.suffix = result.value.suffix
     img.imagePath = result.value.imagePath
+    img.id=uid
 
-    return Result.Ok(img)
+    return Result.Ok(img, "Successfully uploaded 1 New Image", true)
 }
 
-
+/**
+ * @param {[file]} files - a file object from request-{req.files.images}
+ * @param {string} uid - Uid to save the images with
+ */
 const uploadImagesWithNewNames=async (files, uid)=>{
     const names=[]
     try{
@@ -58,18 +66,17 @@ const uploadImagesWithNewNames=async (files, uid)=>{
 
                 const result= await  IUploadSingleImage(file.buffer,  filename)
                 if (result.fail()){
-                    console.log("err=>",result.error)
-                    return Result.Failed("failed uploading multi images, in a loop")
+                    return Result.Failed(result.error,"failed uploading multi images, in a loop")
                 }
 
                 names.push(result.value.name)
                 console.log("bdy.img===", names)
             })
         );
-        log_func("success", "Successfully uploaded Images With new name")
+        log_func( "Successfully uploaded Images With new name", names, "BgCyan")
         return Result.Ok(names)
     }catch (e){
-        return Result.Failed(e)
+        return Result.Failed(e, "uploading many images failed")
     }
 
 
@@ -78,7 +85,8 @@ const uploadImagesWithNewNames=async (files, uid)=>{
 
 
 
-// =========================  for uploading multiple images  -
+// =========================  for uploading singleCover Image + multiple New images  -
+
 const uploadNewImages=async (files) => {
     let img={}
     let uid=uuid.v4()

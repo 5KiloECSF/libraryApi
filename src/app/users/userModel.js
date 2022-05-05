@@ -1,7 +1,11 @@
+
+
 const { Schema, model } = require("mongoose");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
 const crypo = require('crypto');
+const paginate = require("../../controllers/paginate");
+
 /**
  * User Schema
  */
@@ -20,33 +24,43 @@ const userSchema = new Schema(
       minlength: [2, "last name should contain atleast 2 characters!"],
       maxlength: [24, "last name should contain at maximum 24 characters!"],
     },
-    email: {
-      type: String,
-      // required: [true, "user should have email!"],
-      // unique: true,
-      lowercase: true,
-      validate: [validator.isEmail, "Invalid email. Please use valid email!"],
-    },
     phone: {
       type: String,
-      // required: [true, "phone number is required"],
+      unique: true,
+      required: [true, "phone number is required"],
       minlength: [10, "invalid phone number format, too short"],
       maxlength: [14, "invalid phone number format, too long"],
     },
+      team:{
+          type: String,
+          enum: {
+              values: ["Action", "Art", "BibleStudy", "Choir", "Holistic", "Prayer", "Shepherd", "None"],
+              message: "{VALUE} role is not supported",
+          },
+          default: "None",
+      },
+      email: {
+          type: String,
+          lowercase: true,
+          validate: [validator.isEmail, "Invalid email. Please use valid email!"],
+      },
     firebaseId:{
         type: String,
     },
     role: {
       type: String,
       enum: {
-        values: ["user", "owner", "admin"],
+        values: ["user", "admin"],
         message: "{VALUE} role is not supported",
       },
       default: "user",
     },
-    avatar: {
-      type: String,
-    },
+    image: {
+      id:String,
+      imageCover:String,
+      imagePath:String,
+      suffix:String,
+  },
     password: {
       type: String,
       required: [true, "user should have password!"],
@@ -67,17 +81,27 @@ const userSchema = new Schema(
       default: true,
       select: false,
     },
-      following: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    favorites: [{ type: Schema.Types.ObjectId, ref: "Book" }],
   },
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
+userSchema.plugin(paginate);
+/**
+ * Check if email is taken
+ * @param {string} phone - The user's phone
+ * @param {ObjectId} [excludeUserId] - The id of the user to be excluded
+ * @returns {Promise<boolean>}
+ */
+userSchema.statics.isPhoneTaken = async function (phone, excludeUserId) {
+    const user = await this.findOne({ phone, _id: { $ne: excludeUserId } });
+    return !!user;
+};
 /**
  * Pre database save operations
  */
-
 userSchema.pre("save", async function (next) {
   //don't hash if not modified password
   if (!this.isModified("password")) return next();

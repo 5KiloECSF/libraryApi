@@ -16,19 +16,15 @@ class Result {
         this.value = value;
         this.error = error;
     }
-    static Ok(value, log=true){
+    static Ok(value, name="", log=false){
         // console.log("succesful operarion")
         if(log){
-            log_func("success", value)
+            log_func(name, value, "BgGreen")
         }
-
-        // console.log("DEBUG", (new Error().stack.split("at ")[2]).trim(), ">>>")
         return new Result(true, value, null )
     }
     static Failed(error=null, name=""){
-
-        log_func("error", name,)
-        log_func("error", error,)
+        log_func( name, error,"BgRed")
         return new Result(false, null, error )
     }
     fail(){

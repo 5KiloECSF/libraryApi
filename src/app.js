@@ -1,29 +1,36 @@
+const {options} = require("./docs/swaggerDef");
+
 const express = require("express");
 // const monogoSanitize = require("express-mongo-sanitize");
 const cors = require("cors");
 // const morgan = require("morgan");
 const http = require("http");
 // const socket = require("socket.io");
-
-// const helmet = require("helmet");
+const routes = require('./router/v1');
+const helmet = require("helmet");
 // const xssClean = require("xss-clean");
 // const hpp = require("hpp");
 // const cookieParser = require("cookie-parser");
 
+const path = require('path');
 const dotenv = require("dotenv");
+// const getResponseExpress  = require('@tiemma/sonic-express');
+const getResponseExpress  = require('./libs/autoSwagger');
 
-dotenv.config({ path: './.env' });
+dotenv.config({ path: path.join(__dirname, '../env/.env') });
+// dotenv.config({ path: '.env' });S
 // import global error handler
 const AppError = require("./utils/response/appError");
 const globalErrorHandler = require("./app/error/global_error_handler");
 
-//import routes
-const userRouter = require("./app/users/usersRoute");
-const authRouter = require("./app/auth/authRoute");
-const bookRouter = require("./app/items/itemRoutes");
+
 
 // const reviewRouter = require("./app/review/reviewRoute");
-const {isDevelopment} = require("./utils/constants");
+const {isDevelopment} = require("./config/constants");
+const fs = require("fs");
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerDefinition = require("./docs/swaggerDef");
+
 
 // instantiate express app
 const app = express();
@@ -56,20 +63,18 @@ app.use(express.json({ limit: "10kb" }));
 // prevent parameter pollution attacks
 // app.use(hpp());
 // header sender helmet for security | security http headers
-// app.use(helmet());
+app.use(helmet());
 
-/**
- * registering middlewares
- */
-app.use("/api/v1/users", userRouter);
-// console.log("app is  here")
-app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/books", bookRouter);
 
+
+
+// v1 api routes
+app.use('/api/v1', routes);
 app.get("/", function (req, res) {
   res.status(200).json("hi");
 });
-// app.use("/api/v1/reviews", reviewRouter);
+
+app.use(getResponseExpress(app, options, './docs/swagger.json'));
 
 /**
  * handle unregisterd routes

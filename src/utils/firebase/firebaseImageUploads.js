@@ -50,12 +50,12 @@ exports.deleteFirebaseImage=async (id) => {
     try {
 
         const res = await storageRef.deleteFiles({prefix: id})
-        log_func("success", "succesfully deleted an image")
+        log_func("successfully deleted an image", res, "BgMagenta", 2)
         return Result.Ok(res)
 
 
     } catch (e) {
-        return Result.Failed(e, "failed to delete firebase image")
+        return Result.Failed(e, "failed to delete firebase image", "BgRed")
     }
 
 }
@@ -77,7 +77,7 @@ const resizeSinglePic = async (file) => {
             .jpeg({ mozjpeg: true })
             .resize(500, 500)
             .toBuffer()
-        return Result.Ok(data, false)
+        return Result.Ok(data, "resizing success", false)
     }catch (e){
         return Result.Failed(e)
     }
@@ -87,14 +87,14 @@ const resizeSinglePic = async (file) => {
 //gets a file name & a buffer file, and uploads the file to firebase -> returns an object{imageCover:{img:"name", suffix:""},imagePath:"" }
 const FUploadToFirebaseFunc= async (fName, file) => {
     try {
-        log_func("file name on func", fName)
+
         const fFile = await storageRef.file(fName)
         await fFile.save(file, {contentType: 'image/jpeg'});
         let publicUrl=fFile.publicUrl()
 
         //replacing the name of the public url so that it can be previewed by browser
         publicUrl.replace(`${toBeRemoved}`,"")
-        console.log("public url is",publicUrl)
+        log_func("public url is", publicUrl, "BgMagenta", 2)
         return  Result.Ok({
             name:fName,
             suffix:"?alt=media",
@@ -102,8 +102,8 @@ const FUploadToFirebaseFunc= async (fName, file) => {
         })
 
     } catch (e) {
-        log_func("firebase_err=-", e)
-        return  Result.Failed(e)
+
+        return  Result.Failed(e, "uploading to firebase failed")
     }
 }
 
@@ -111,19 +111,17 @@ const FUploadToFirebaseFunc= async (fName, file) => {
 // ----------------------------------------------------------------------
 //this func calls the resize func then the upload to firebase func
 /**
- * @param {file.buffer} file - the buffer of the file
+ * @param {file.buffer} file - buffer of the file-- {req.file.imageCover.buffer}
  * @param {string} fName - Name of the image
  */
 const IUploadSingleImage= async (file, fName)=>{
     if (!file) return Result.Failed("no image file")
 
     const res =await resizeSinglePic(file)
-    // console.log("zRes=", res)
     if(res.fail()){
-        return Result.Failed(res.error)
+        return Result.Failed(res.error,"resizing failed")
     }
     console.log("resizing finished")
-
     return await FUploadToFirebaseFunc(fName, res.value)
 }
 

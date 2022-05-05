@@ -25,22 +25,48 @@ const BgCyan = "\x1b[46m"
 const BgWhite = "\x1b[47m"
 
 
-const log_func=(name, value)=>{
+const log_func=(name, value, color="", num=2)=>{
     let val
-    switch (name){
-        case "success":
+    switch (color){
+        case "green":
             val=FgGreen
             break
-        case "error":
+        case "red":
             val=FgRed
             break
-        case "log":
+        case "yellow":
             val=FgYellow
             break
+        case "magenta":
+            val=FgMagenta
+            break
+        case "cyan":
+            val=FgCyan
+            break
+        //------------------------------- Bg --------------
+        case "BgGreen":
+            val=BgGreen
+            break
+        case "BgYellow":
+            val=BgYellow
+            break
+        case "BgMagenta":
+            val=BgMagenta
+            break
+        case "BgBlue":
+            val=BgBlue
+            break
+        case "BgRed":
+            val=BgRed
+            break
+        case "BgCyan":
+            val=BgCyan
+            break
+
         default:
             val=FgBlue
     }
-    console.log(val,"DEBUG" , name,"--->",JSON.stringify(value), "---",Reset, (new Error().stack.split("at ")[3]).trim(), ">>>")
+    console.log(val,"DEBUG:-", name,"--->v=",JSON.stringify(value), "---",Reset, (new Error().stack.split("at ")[num]).trim(), ">>>")
 }
 
 module.exports=log_func

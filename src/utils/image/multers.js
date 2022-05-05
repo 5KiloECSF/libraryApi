@@ -23,6 +23,7 @@ const memUpload = multer({
 });
 
 exports.uploadSingleToMemory=memUpload.single("imageCover");
+
 exports.uploadImagesToMemory = memUpload.fields([
     { name: 'imageCover', maxCount: 1 },
     { name: 'images', maxCount: 3 }
@@ -30,6 +31,5 @@ exports.uploadImagesToMemory = memUpload.fields([
 exports.uploadUpdatedImages = memUpload.fields([
     { name: 'imageCover', maxCount: 1 },
     { name: 'addedImages', maxCount: 3 },
-    { name: 'updatedImages', maxCount: 3 },
 ]);
 

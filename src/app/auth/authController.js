@@ -2,7 +2,7 @@ const User = require('../users/userModel');
 const { sendResponse, sendResponseWithToken } = require('../../utils/response/success_response');
 const catchAsync = require('../../utils/response/catchAsync');
 const AppError = require('../../utils/response/appError');
-const Email = require("../../utils/email");
+const Email = require("../../utils/helpers/email");
 
 
 const login = catchAsync(async (req, res, next) => {
@@ -54,12 +54,10 @@ const updateMyPassword = catchAsync(async (req, res, next) => {
     if (!currentPassword || !newPassword)
         return next(new AppError("The current and new password is required!", 401));
     if (currentPassword === newPassword)
-        return next(
-            new AppError("Password is same! please choose different password", 401)
+        return next(new AppError("Password is same! please choose different password", 401)
         );
     if (confirmPassword !== newPassword)
-        return next(
-            new AppError("Password and confirm password must be the same", 401)
+        return next(new AppError("Password and confirm password must be the same", 401)
         );
 
     // 2) Check if POSTed current password is correct

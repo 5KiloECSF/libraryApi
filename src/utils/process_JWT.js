@@ -1,7 +1,7 @@
 
 
 const jwt = require('jsonwebtoken');
-const {JWT_SECRET_KEY, JWT_EXPIRES_IN} = require("./constants");
+const {JWT_SECRET_KEY, JWT_EXPIRES_IN} = require("../config/constants");
 
 
 

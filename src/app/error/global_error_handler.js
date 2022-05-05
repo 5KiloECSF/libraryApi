@@ -1,6 +1,6 @@
 
-const {isProduction} = require("../../utils/constants");
-const {isDevelopment} = require("../../utils/constants");
+const {isProduction} = require("../../config/constants");
+const {isDevelopment} = require("../../config/constants");
 const ErrorStack = require('./errorModel');
 const log_func=require("../../utils/logger")
 const SetError= require('./dtErrors')
@@ -55,19 +55,19 @@ const sendErrorProd =async (err, res) => {
 
 
 //Functions
-const global_error_handler = (err, req, res, next) => {
+const global_error_handler = async (err, req, res, next) => {
 
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
     log_func("status==", {status:err.statusCode, name:err.name, message:err.message})
     if (isDevelopment()) {
-        sendErrorDev(err, res);
+        await sendErrorDev(err, res);
     } else if (isProduction()) {
         let error = SetError(err)
-        sendErrorProd(error, res);
+        await sendErrorProd(error, res);
         err.status = err.status || 'error';
     }else {
-        sendErrorProd(error, res);
+        await sendErrorProd(error, res);
     }
 
 };
@@ -75,19 +75,19 @@ const global_error_handler = (err, req, res, next) => {
 
 
 
-const handleError=(err, res)=>{
+const handleError= async (err, res)=>{
     err.statusCode = err.statusCode || status;
     if (isDevelopment()) {
         log_func("dev")
-        sendErrorDev(err, res);
+        await sendErrorDev(err, res);
     } else if (isProduction()) {
         log_func('prod')
         let error = SetError(err)
-        sendErrorProd(error, res);
+        await sendErrorProd(error, res);
         err.status = err.status || 'error';
     }else {
         log_func("in Else")
-        sendErrorProd(error, res);
+        await sendErrorProd(error, res);
     }
 
 }

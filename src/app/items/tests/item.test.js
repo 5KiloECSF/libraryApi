@@ -106,9 +106,6 @@ describe("ItemTest api", () => {
         expect(await ItemModel.findOne({ _id: item.id })).toBeFalsy();
 
     });
-
-
-
 })
 
 

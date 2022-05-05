@@ -3,7 +3,7 @@ const chalk = require('chalk');
 
 
 const app = require('./src/app');
-const {LOCAL_DB_URI, PORT} = require("./src/utils/constants");
+const {LOCAL_DB_URI, PORT} = require("./src/config/constants");
 console.log("localDb", LOCAL_DB_URI)
 
 

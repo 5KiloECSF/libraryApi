@@ -28,7 +28,6 @@ const PhoneRegister = catchAsync(async (req, res, next)=>{
         firebaseId = decodedToken.uid
         phone_no=decodedToken.phone_number
         console.log("decTOkn=>", decodedToken)
-
     }catch (e){
         return next(
             new AppError("verification error", 401)

@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-const {string} = require("sharp/lib/is");
 // const User = require('./userModel');
 // const validator = require('validator');
 
@@ -9,17 +8,20 @@ const bookSchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, 'A book must have a name'],
-      // unique: true,
+
       trim: true,
       maxlength: [60, 'A book name must have less or equal then 40 characters'],
       minlength: [2, 'A book name must have more or equal then 10 characters']
-      // validate: [validator.isAlpha, 'Tour name must only contain caracters']
+      // validate: [validator.isAlpha, 'Tour name must only contain characters']
     },
     slug: String,
     page: {
       type: Number,
     },
-    genres:[String],
+    genres:{
+        type: mongoose.Schema.ObjectId,
+        ref: 'Genre'
+    },
     type:String,  // spiritual, secular //-  ?? could this be a tag/ genre - what if both
     tags:[String], // curch history, selfHelp,
     authors:[String],
@@ -34,11 +36,11 @@ const bookSchema = new mongoose.Schema(
       // type: String,
       // required: [true, 'A book must have a cover image']
     },
-      summary: {
-          type: String,
-          trim: true,
-          // required: [true, 'A book must have a description']
-      },
+    summary: {
+      type: String,
+      trim: true,
+      // required: [true, 'A book must have a description']
+    },
       description: {
           type: String,
           trim: true,
@@ -50,7 +52,7 @@ const bookSchema = new mongoose.Schema(
           default:1,
           // required: [true, 'A book must have a price']
       },
-    currentHolder:{
+    currentHolders:{
         type: mongoose.Schema.ObjectId,
         ref: 'User'
     },
@@ -111,6 +113,14 @@ const bookSchema = new mongoose.Schema(
 bookSchema.index({ type: 1, tags: 1 });
 bookSchema.index({ slug: 1 });
 
+bookSchema.virtual('poster').get(function() {
+    return this.image.imagePath +this.image.imageCover+this.image.suffix;
+});
+bookSchema.virtual('images').get(function() {
+    return this.image.images.map(img => {
+        return this.image.imagePath + img + this.image.suffix
+    })
+});
 
 // Virtual populate
 bookSchema.virtual('reviews', {
@@ -149,12 +159,18 @@ module.exports = Book;
 //   next();
 // });
 
-
 // bookSchema.pre('save', async function(next) {
 //   const guidesPromises = this.guides.map(async id => await User.findById(id));
 //   this.guides = await Promise.all(guidesPromises);
 //   next();
 // });
+// AGGREGATION MIDDLEWARE
+// bookSchema.pre('aggregate', function(next) {
+//   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } }); // removing all the documents from the output which have secretTour set to true
+//   console.log(this.pipeline());
+//   next();
+// });
+//---------------------------------------------- trial
 // bookSchema.pre('save', function(next) {
 //   console.log('Document will save....');
 //   next();
@@ -167,10 +183,5 @@ module.exports = Book;
 //   console.log(`Query took ${Date.now() - this.start} millisecnds!`);
 //   next();
 // });
-// AGGREGATION MIDDLEWARE
-// bookSchema.pre('aggregate', function(next) {
-//   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } }); // removing all the documents from the output which have secretTour set to true
-//   console.log(this.pipeline());
-//   next();
-// });
+
 

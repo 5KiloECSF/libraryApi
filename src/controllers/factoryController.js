@@ -2,6 +2,8 @@ const { sendResponse } = require("../utils/response/success_response");
 const catchAsync = require("../utils/response/catchAsync");
 const AppError = require("../utils/response/appError");
 const ApiFilters = require("./apiFeatures");
+const pick = require("../app/filterFiles");
+const log_func=require("../utils/logger")
 
 exports.deleteOne = (Model) =>
   catchAsync(async (req, res, next) => {
@@ -49,7 +51,7 @@ exports.getOne = (Model, populateOptions) =>
     sendResponse(200, doc, res);
   });
 
-exports.getAll = (Model) =>
+exports.getAll = (Model,  query=[]) =>
   catchAsync(async (req, res, next) => {
       console.log("querying all")
 
@@ -58,12 +60,13 @@ exports.getAll = (Model) =>
 
     //if it is requesting for reviews with this tourId ----- reviews will have tourId
     if (req.params.tourId) idFilter = { tourId: req.params.tourId };
-
     //if it is requesting for tours with this categoryID---- items will have category id
     if (req.params.ctgId) idFilter = { ctgId: req.params.ctgId };
-
+    log_func("query", req.query, "BgGreen")
+    const filter = pick(req.query, query)
+      log_func("filter", filter, "BgYellow")
     // apply api features on given query
-    const features = new ApiFilters(Model.find(idFilter), req.query)
+    const features = new ApiFilters(Model.find(idFilter), filter)
       .filter()
       .sort()
       .limitFields()

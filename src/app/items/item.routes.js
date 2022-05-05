@@ -30,7 +30,7 @@ router
   .patch(
     // protectRoute,
     // restrictRole('admin', 'lead-guide'),
-    multerSt.uploadUpdatedImages,
+    multerSt.uploadImagesToMemory,
     // imageUploads.resizeManyImages("books"),
     itemController.UpdateItem
   )
