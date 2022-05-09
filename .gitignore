@@ -3,3 +3,8 @@ node_modules/
 .cache/
 config/
 dist
+/env
+.env
+./env
+.git.bgf*
+bfg*
