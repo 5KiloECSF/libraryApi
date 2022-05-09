@@ -58,9 +58,9 @@ exports.getAll = (Model,  query=[]) =>
       // To allow for nested GET reviews an art (hack)
     let idFilter = {};
 
-    //if it is requesting for reviews with this tourId ----- reviews will have tourId
-    if (req.params.tourId) idFilter = { tourId: req.params.tourId };
-    //if it is requesting for tours with this categoryID---- items will have category id
+    //if it is requesting for reviews with this bookId ----- reviews will have bookId
+    if (req.params.bookId) idFilter = { bookId: req.params.bookId };
+    //if it is requesting for books with this categoryID---- items will have category id
     if (req.params.ctgId) idFilter = { ctgId: req.params.ctgId };
     log_func("query", req.query, "BgGreen")
     const filter = pick(req.query, query)

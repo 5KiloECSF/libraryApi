@@ -15,7 +15,7 @@ const {user1, user2} = require("./mock/user.mock")
 
 
 
-describe("me api", () => {
+describe("me api testing", () => {
 
     afterAll(async () => {
         await User.deleteMany({});

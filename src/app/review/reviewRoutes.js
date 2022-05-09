@@ -5,8 +5,8 @@ const {  protectRoute,  restrictRole } = require('../../middlewares/authorizeRou
 
 const router = express.Router({ mergeParams: true });
 
-// POST /tour/32434fs35/reviews
-// GET /tour/32434fs35/reviews
+// POST /book/32434fs35/reviews
+// GET /book/32434fs35/reviews
 // POST /reviews
 
 router.use(protectRoute);
@@ -17,7 +17,7 @@ router
   .get(reviewController.getAllReviews)
   .post(
       restrictRole('user'),
-    reviewController.setTourUserIds,
+    reviewController.setBookUserIds,
     reviewController.createReview
   );
 

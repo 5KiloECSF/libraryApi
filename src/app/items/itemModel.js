@@ -12,7 +12,7 @@ const bookSchema = new mongoose.Schema(
       trim: true,
       maxlength: [60, 'A book name must have less or equal then 40 characters'],
       minlength: [2, 'A book name must have more or equal then 10 characters']
-      // validate: [validator.isAlpha, 'Tour name must only contain characters']
+      // validate: [validator.isAlpha, 'Book name must only contain characters']
     },
     slug: String,
     page: {
@@ -103,6 +103,12 @@ const bookSchema = new mongoose.Schema(
           default: Date.now(),
           select: false
       },
+      hiddenBook: {
+          type: Boolean,
+          default: false,
+          select: false
+      },
+
   },
   {
     toJSON: { virtuals: true },
@@ -143,12 +149,12 @@ module.exports = Book;
 
 // QUERY MIDDLEWARE
 
-// bookSchema.pre(/^find/, function(next) {
-//   this.find({ secretTour: { $ne: true } });
-//
-//   this.start = Date.now();
-//   next();
-// });
+bookSchema.pre(/^find/, function(next) {
+  this.find({ hiddenBook: { $ne: true } });
+
+  this.start = Date.now();
+  next();
+});
 
 // bookSchema.pre(/^find/, function(next) {
 //   this.populate({
@@ -166,7 +172,7 @@ module.exports = Book;
 // });
 // AGGREGATION MIDDLEWARE
 // bookSchema.pre('aggregate', function(next) {
-//   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } }); // removing all the documents from the output which have secretTour set to true
+//   this.pipeline().unshift({ $match: { hiddenBook: { $ne: true } } }); // removing all the documents from the output which have hiddenBook set to true
 //   console.log(this.pipeline());
 //   next();
 // });

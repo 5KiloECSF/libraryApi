@@ -79,6 +79,7 @@ const deleteUser = catchAsync(async (req, res, next) => {
   sendResponse(204, doc, res);
 
 })
+
 const getUsers = catchAsync(async (req, res, next) => {
   log_func("query=", req.query, "BgGreen")
   // 1) GetAll user document

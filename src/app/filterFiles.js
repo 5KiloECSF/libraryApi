@@ -11,7 +11,6 @@ const filterObj = (reqBody, allowedFields) => {
     return newObj;
 };
 
-
 /**
  * Create an object composed of the picked object properties
  * @param {Object} object
