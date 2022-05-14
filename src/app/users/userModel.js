@@ -31,14 +31,7 @@ const userSchema = new Schema(
       minlength: [10, "invalid phone number format, too short"],
       maxlength: [14, "invalid phone number format, too long"],
     },
-      team:{
-          type: String,
-          enum: {
-              values: ["Action", "Art", "BibleStudy", "Choir", "Holistic", "Prayer", "Shepherd", "None"],
-              message: "{VALUE} role is not supported",
-          },
-          default: "None",
-      },
+
       email: {
           type: String,
           lowercase: true,
@@ -60,7 +53,7 @@ const userSchema = new Schema(
       imageCover:String,
       imagePath:String,
       suffix:String,
-  },
+    },
     password: {
       type: String,
       required: [true, "user should have password!"],
@@ -81,7 +74,20 @@ const userSchema = new Schema(
       default: true,
       select: false,
     },
+
     favorites: [{ type: Schema.Types.ObjectId, ref: "Book" }],
+  team:{
+      type: String,
+      enum: {
+          values: ["Action", "Art", "BibleStudy", "Choir", "Holistic", "Prayer", "Shepherd", "None"],
+          message: "{VALUE} role is not supported",
+      },
+      default: "None",
+  },
+   batch:{
+        type:Number
+   }
+
   },
   {
     toJSON: { virtuals: true },
@@ -89,6 +95,12 @@ const userSchema = new Schema(
   }
 );
 userSchema.plugin(paginate);
+
+
+
+userSchema.virtual('fullName').get(function() {
+    return this.firstName+" " +this.lastName;
+});
 /**
  * Check if email is taken
  * @param {string} phone - The user's phone

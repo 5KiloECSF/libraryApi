@@ -1,11 +1,14 @@
 let admin = require("firebase-admin");
 const { v4: uuidv4 } = require('uuid');
-let serviceAccount = require("../../../env/webproj1-a-firebase-adminsdk-rb2ms-03b771f4da.json");
+
+const serviceAccount = require("../../../env/aait-a3640-1.json");
+const {fbConfig,FirebaseProjectName}=require('../../config/constants');
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://webproj1-a.firebaseio.com",
-    storageBucket: `gs://webproj1-a.appspot.com`
+    // credential: admin.credential.cert(fbConfig),
+    databaseURL: `https://${FirebaseProjectName}.firebaseio.com`,
+    storageBucket: `gs://${FirebaseProjectName}.appspot.com`
 });
 
 module.exports=admin;

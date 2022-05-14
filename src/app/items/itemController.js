@@ -9,11 +9,12 @@ const {deleteFirebaseImage, uploadToFirebaseFunc, IUploadSingleImage, deleteAllI
 
 const {upload1ImageWithNewName, uploadNewImages, uploadImagesWIthGivenNames, uploadImagesWithNewNames} = require("../../utils/image/3ImageFunc");
 const {handleError} = require("../error/global_error_handler");
+const {filterObj}= require("../filterFiles")
+const Pick= require("../filterFiles")
 
 
 
-
-exports.getAllItems = factory.getAll(Item);
+exports.getAllItems = factory.getAll(Item, ["language", "authors", "pageNo","booksAmount","type", "genres", "name", "tags", "team"]);
 // exports.getItem = factory.getOne(Item, { path: 'reviews' });
 exports.getItem = factory.getOne(Item);
 
@@ -28,22 +29,24 @@ exports.aliasTopItems = (req, res, next) => {
   next();
 };
 
-const filterObj = (obj, allowedFields) => {
-    // log_func("obj=", obj)
-    const newObj = {};
-    Object.keys(obj).forEach(el => {
-        // console.log("el=", el, allowedFields)
-        // console.log("bool=",allowedFields.includes(el))
-        // console.log("bool2=",allowedFields.includes("name"))
-        if (allowedFields.includes(el)) {
-            // console.log("adding", el)
-            newObj[el] = obj[el];
-        }
-    });
-    // console.log("new", newObj)
-    return newObj;
-};
-const allowedUpdate=["genres", "name", "tags", "description", "authors", "borrowingHistory", "image"]
+// const filterObj = (obj, allowedFields) => {
+//     // log_func("obj=", obj)
+//     const newObj = {};
+//     Object.keys(obj).forEach(el => {
+//         // console.log("el=", el, allowedFields)
+//         // console.log("bool=",allowedFields.includes(el))
+//         // console.log("bool2=",allowedFields.includes("name"))
+//         if (allowedFields.includes(el)) {
+//             // console.log("adding", el)
+//             newObj[el] = obj[el];
+//         }
+//     });
+//     // console.log("new", newObj)
+//     return newObj;
+// };
+
+//These are the only fields that are allowed to be updated
+const allowedUpdate=["genres", "name", "tags", "description", "authors", "image", "language","pageNo","booksAmount","type" ]
 
 exports.UpdateBook=catchAsync(async (req, res,next)=>{
     const filteredBody = filterObj(req.body, allowedUpdate);
@@ -232,7 +235,7 @@ exports.UpdateItem=catchAsync(async (req, res,next)=>{
 
         log_func("image operation finished", "", "green")
 
-        const filteredBody = filterObj(req.body, allowedUpdate);
+        const filteredBody = Pick(req.body, allowedUpdate);
         // console.log("--filteredBody==", filteredBody,"req.body", req.body, allowedUpdate)
 
         const doc = await Item.findByIdAndUpdate(req.params.id, filteredBody, {
@@ -244,8 +247,8 @@ exports.UpdateItem=catchAsync(async (req, res,next)=>{
 
         sendResponse(202, doc, res);
     }catch (e){
-        console.log("error happended-->", e)
-        await handleError(e, res)
+        console.log("error happended-->", e.message)
+        return next(new AppError("internal server error", 500));
     }
 
 })

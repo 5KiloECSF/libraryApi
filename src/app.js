@@ -17,8 +17,8 @@ const dotenv = require("dotenv");
 // const getResponseExpress  = require('@tiemma/sonic-express');
 const getResponseExpress  = require('./libs/autoSwagger');
 
-dotenv.config({ path: path.join(__dirname, '../env/.env') });
-// dotenv.config({ path: '.env' });S
+dotenv.config({ path: path.join(__dirname, '../env/app.env') });
+// dotenv.config({ path: 'app.env' });
 // import global error handler
 const AppError = require("./utils/response/appError");
 const globalErrorHandler = require("./app/error/global_error_handler");

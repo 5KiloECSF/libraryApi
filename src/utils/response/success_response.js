@@ -64,3 +64,4 @@ const sendResponseWithToken = (statusCode, user, res) => {
 
 exports.sendResponseWithToken = sendResponseWithToken
 exports.sendResponse = sendResponse
+exports.sendError = sendError

@@ -6,10 +6,11 @@ const sharp = require("sharp");
 const Result = require("../response/appResult");
 const log_func = require("../logger");
 
+const {FirebaseProjectName} = require("../../config/constants")
 
 
 
-const storageRef = admin.storage().bucket(`gs://webproj1-a.appspot.com`);
+const storageRef = admin.storage().bucket(`gs://${FirebaseProjectName}.appspot.com`);
 
 async function uploadFile(path, filename, imageFile) {
 
@@ -30,9 +31,10 @@ async function uploadFile(path, filename, imageFile) {
     return storage[0].metadata.mediaLink;
 }
 
-const toBeRemoved = "https://storage.googleapis.com/webproj1-a.appspot.com/"
-const ToBeAdded= "https://firebasestorage.googleapis.com/v0/b/webproj1-a.appspot.com/o/"
-const pre3= "gs://webproj1-a.appspot.com"
+const projName=`${FirebaseProjectName}.appspot.com`
+const toBeRemoved = `https://storage.googleapis.com/${projName}/`
+const ToBeAdded= `https://firebasestorage.googleapis.com/v0/b/${projName}/o/`
+
 
 exports.deleteAllImages=async ()=>{
     try {

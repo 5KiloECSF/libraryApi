@@ -3,13 +3,13 @@ const chalk = require('chalk');
 
 
 const app = require('./src/app');
-const {LOCAL_DB_URI, PORT} = require("./src/config/constants");
-console.log("localDb", LOCAL_DB_URI)
+const { PORT, getMongoUri} = require("./src/config/constants");
+console.log("mongoDb", getMongoUri())
 
 
 /** connect to database */
 // const DB_REMOTE = REMOTE_DB_URI.replace("<PASSWORD>", DB_PASSWORD);
-mongoose.connect(LOCAL_DB_URI,
+mongoose.connect(getMongoUri(),
     {
         useNewUrlParser: true,
         // useCreateIndex: true,
@@ -20,7 +20,8 @@ mongoose.connect(LOCAL_DB_URI,
     }).catch(e => console.log(`Database connection error!=${e}`));
 
 const server =app.listen(PORT, () => {
-    console.log(`server listening on port : ${PORT}`);
+    console.log(`server listening on port : http://localhost:${PORT}`);
+    console.log(`Swagger documentation on  : http://localhost:${PORT}/api/v1/docs`);
 });
 process.on('unhandledRejection', err => {
     console.log('UNHANDLED REJECTION! 💥 Shutting down...')

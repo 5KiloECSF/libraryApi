@@ -51,7 +51,7 @@ exports.getOne = (Model, populateOptions) =>
     sendResponse(200, doc, res);
   });
 
-exports.getAll = (Model,  query=[]) =>
+exports.getAll = (Model,  allowedQuery=[]) =>
   catchAsync(async (req, res, next) => {
       console.log("querying all")
 
@@ -62,11 +62,12 @@ exports.getAll = (Model,  query=[]) =>
     if (req.params.bookId) idFilter = { bookId: req.params.bookId };
     //if it is requesting for books with this categoryID---- items will have category id
     if (req.params.ctgId) idFilter = { ctgId: req.params.ctgId };
+
     log_func("query", req.query, "BgGreen")
-    const filter = pick(req.query, query)
+    const filter = pick(req.query, allowedQuery)
       log_func("filter", filter, "BgYellow")
     // apply api features on given query
-    const features = new ApiFilters(Model.find(idFilter), filter)
+    const queryBuilder = new ApiFilters(Model.find(idFilter), filter)
       .filter()
       .sort()
       .limitFields()
@@ -74,7 +75,7 @@ exports.getAll = (Model,  query=[]) =>
 
     // excute query
       // const doc = await features.query.explain();
-    const doc = await features.query;
+    const doc = await queryBuilder.query;
     // console.log("QueryRes==<>", doc)
     // send responce to client
     sendResponse(200, doc, res);

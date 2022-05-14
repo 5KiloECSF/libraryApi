@@ -8,3 +8,5 @@ dist
 ./env
 .git.bgf*
 bfg*
+*.jar
+.git.bfg-report

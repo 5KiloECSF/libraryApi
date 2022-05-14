@@ -15,17 +15,18 @@ const bookSchema = new mongoose.Schema(
       // validate: [validator.isAlpha, 'Book name must only contain characters']
     },
     slug: String,
-    page: {
+    pageNo: {
       type: Number,
     },
     genres:{
         type: mongoose.Schema.ObjectId,
         ref: 'Genre'
     },
-    type:String,  // spiritual, secular //-  ?? could this be a tag/ genre - what if both
     tags:[String], // curch history, selfHelp,
-    authors:[String],
-    language:String,  //amh, eng
+      authors:[String],
+
+      type:String,  // spiritual, secular //-  ?? could this be a tag/ genre - what if both
+      language:String,  //amh, eng
 
     image: {
         id:String,
@@ -151,7 +152,6 @@ module.exports = Book;
 
 bookSchema.pre(/^find/, function(next) {
   this.find({ hiddenBook: { $ne: true } });
-
   this.start = Date.now();
   next();
 });
