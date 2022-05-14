@@ -10,5 +10,4 @@ admin.initializeApp({
     databaseURL: `https://${FirebaseProjectName}.firebaseio.com`,
     storageBucket: `gs://${FirebaseProjectName}.appspot.com`
 });
-
 module.exports=admin;
