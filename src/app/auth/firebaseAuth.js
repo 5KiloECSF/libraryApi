@@ -6,8 +6,6 @@ const AppError = require("../../utils/response/appError");
 const {sendResponseWithToken} = require("../../utils/response/success_response");
 // const {getAuth} = require("firebase-admin");
 const AppResult = require('../../utils/response/appResult')
-
-
 const admin = require("../../utils/firebase/firebaseAdmin")
 
 
@@ -35,7 +33,7 @@ const PhoneRegister = catchAsync(async (req, res, next)=>{
     }
 
 
-    const user = await User.findOne({ phone })
+    const user = await User.findOne({phone})
     if (user){
         sendResponseWithToken(200, user, res);
         return
@@ -53,19 +51,15 @@ const PhoneRegister = catchAsync(async (req, res, next)=>{
 const PhoneChangePwd = catchAsync(async (req, res, next)=>{
 
     const { phone, newPassword, idToken }= req.body;
-
-
     let firebaseId
     try{
         const decodedToken = await admin.auth().verifyIdToken(idToken)
         firebaseId = decodedToken.uid
-
     }catch (e){
         return next(
             new AppError("verification error", 401)
         );
     }
-
     const user = await User.findOne({ phone }).select('+password');
 
     if (!user){
@@ -75,35 +69,29 @@ const PhoneChangePwd = catchAsync(async (req, res, next)=>{
     }
     user.password = newPassword;
     await user.save();
-    sendResponseWithToken(200, newUser, res);
+    user.password=undefined
+    sendResponseWithToken(200, user, res);
     // sendResponse(200, newUser, res);
 
 })
 
 const passwordLessWithPhone = catchAsync(async (req, res, next)=>{
-
     const { phone, idToken}= req.body;
     let firebaseId
     try{
         const decodedToken = await admin.auth().verifyIdToken(idToken)
         firebaseId = decodedToken.uid
-
     }catch (e){
         return next(
             new AppError("verification error", 401)
         );
     }
 
-
-
-
     const user = await User.findOne({ phone })
     if (user){
         sendResponseWithToken(200, user, res);
         return
     }
-
-
 
     const newUser = await User.create({ phone , firebaseId});
     newUser.password = undefined

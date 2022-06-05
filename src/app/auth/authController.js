@@ -26,11 +26,6 @@ const login = catchAsync(async (req, res, next) => {
 
 });
 
-
-
-
-
-
 const register = catchAsync(async (req, res, next) => {
     const { firstname, lastname, email, phone, password, passwordConfirm } = req.body;
 
@@ -42,14 +37,10 @@ const register = catchAsync(async (req, res, next) => {
     sendResponse(200, newUser, res);
 });
 
-
-
-
 const updateMyPassword = catchAsync(async (req, res, next) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
     // 1) Get user from collection
     const user = await User.findById(req.user.id).select('+password');
-
 
     if (!currentPassword || !newPassword)
         return next(new AppError("The current and new password is required!", 401));

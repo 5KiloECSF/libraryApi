@@ -24,7 +24,6 @@ const bookSchema = new mongoose.Schema(
     },
     tags:[String], // curch history, selfHelp,
       authors:[String],
-
       type:String,  // spiritual, secular //-  ?? could this be a tag/ genre - what if both
       language:String,  //amh, eng
 
@@ -99,11 +98,7 @@ const bookSchema = new mongoose.Schema(
           type: Number,
           default: 0
       },
-      createdAt: {
-          type: Date,
-          default: Date.now(),
-          select: false
-      },
+
       hiddenBook: {
           type: Boolean,
           default: false,
@@ -112,6 +107,9 @@ const bookSchema = new mongoose.Schema(
 
   },
   {
+      timestamps:true,
+      autoIndex:true,
+      autoCreate:true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
   }
@@ -119,7 +117,16 @@ const bookSchema = new mongoose.Schema(
 
 bookSchema.index({ type: 1, tags: 1 });
 bookSchema.index({ slug: 1 });
-
+bookSchema.index({name: 'text' , description:'text'});
+// bookSchema.ensureIndexes()
+// bookSchema.on('index', function(err) {
+//     if (err) {
+//         console.error('User index error: %s', err);
+//     } else {
+//         console.info('User indexing complete');
+//     }
+// });
+//
 bookSchema.virtual('poster').get(function() {
     return this.image.imagePath +this.image.imageCover+this.image.suffix;
 });

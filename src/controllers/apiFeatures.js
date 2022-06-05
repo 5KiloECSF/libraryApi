@@ -60,7 +60,7 @@ class APIFeatures {
   pagination() {
     // page pagniation
     const pageNum = this.queryString.page * 1 || 1;
-    const perPageLimit = this.queryString.limit * 1 || 100;
+    const perPageLimit = this.queryString.limit * 1 || 20;
     const skipValue = (pageNum - 1) * perPageLimit;
 
     this.query = this.query.skip(skipValue).limit(perPageLimit);

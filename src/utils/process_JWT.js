@@ -1,9 +1,6 @@
 
-
 const jwt = require('jsonwebtoken');
 const {JWT_SECRET_KEY, JWT_EXPIRES_IN} = require("../config/constants");
-
-
 
 const signJwtToken = (payload) => {
     const payload_data = {

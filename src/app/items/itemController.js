@@ -5,16 +5,16 @@ const AppError = require('../../utils/response/appError');
 const {sendResponse} = require("../../utils/response/success_response");
 const log_func=require("../../utils/logger")
 
-const {deleteFirebaseImage, uploadToFirebaseFunc, IUploadSingleImage, deleteAllImages} = require("../../utils/firebase/firebaseImageUploads");
+const {IDeleteImageById, IUploadSingleImage, IDeleteAllImages} = require("../../utils/image/image.Interface");
 
-const {upload1ImageWithNewName, uploadNewImages, uploadImagesWIthGivenNames, uploadImagesWithNewNames} = require("../../utils/image/3ImageFunc");
+const {uploadNewCoverandImages, uploadManyImagesWithNewNames} = require("../../utils/image/3ImageFunc");
 const {handleError} = require("../error/global_error_handler");
 const {filterObj}= require("../filterFiles")
 const Pick= require("../filterFiles")
 
 
 
-exports.getAllItems = factory.getAll(Item, ["language", "authors", "pageNo","booksAmount","type", "genres", "name", "tags", "team"]);
+exports.getAllItems = factory.getAll(Item, [ "page","limit","language", "authors", "pageNo","booksAmount","type", "genre", "name", "team"]);
 // exports.getItem = factory.getOne(Item, { path: 'reviews' });
 exports.getItem = factory.getOne(Item);
 
@@ -29,42 +29,10 @@ exports.aliasTopItems = (req, res, next) => {
   next();
 };
 
-// const filterObj = (obj, allowedFields) => {
-//     // log_func("obj=", obj)
-//     const newObj = {};
-//     Object.keys(obj).forEach(el => {
-//         // console.log("el=", el, allowedFields)
-//         // console.log("bool=",allowedFields.includes(el))
-//         // console.log("bool2=",allowedFields.includes("name"))
-//         if (allowedFields.includes(el)) {
-//             // console.log("adding", el)
-//             newObj[el] = obj[el];
-//         }
-//     });
-//     // console.log("new", newObj)
-//     return newObj;
-// };
+
 
 //These are the only fields that are allowed to be updated
 const allowedUpdate=["genres", "name", "tags", "description", "authors", "image", "language","pageNo","booksAmount","type" ]
-
-exports.UpdateBook=catchAsync(async (req, res,next)=>{
-    const filteredBody = filterObj(req.body, allowedUpdate);
-    const doc = await Item.findByIdAndUpdate(req.params.id, filteredBody, {
-        new: true,
-        runValidators: true,
-    });
-    if (req.file){
-        let result = await IUploadSingleImage(req.file, doc.imageCover.img)
-        if (result.fail()){
-            log_func("updating image failed")
-        }
-    }
-    if (!doc)
-        return next(new AppError("No document found with given id!", 404));
-
-    sendResponse(202, doc, res);
-})
 
 exports.deleteItem=catchAsync(async (req,res,next)=>{
     try{
@@ -73,7 +41,7 @@ exports.deleteItem=catchAsync(async (req,res,next)=>{
         if (!doc)
             return next(new AppError("No document found with given id!", 404));
 
-        const re= await deleteFirebaseImage(doc.image.id)
+        const re= await IDeleteImageById(doc.image.id)
         if(re.fail()){
             log_func("deleting image failed", re.value)
         }
@@ -96,7 +64,7 @@ exports.deleteAllItem=catchAsync(async (req,res,next)=>{
         if (!doc)
             return next(new AppError("No document found with given id!", 404));
 
-        const re= await deleteAllImages()
+        const re= await IDeleteAllImages()
         if(re.fail()){
             log_func("deleting image failed", re)
         }
@@ -117,17 +85,17 @@ exports.createItem=catchAsync(async (req,res,next)=>{
             return next(new AppError("NO images found", 502));
         }
         //FIXME to be removed
-        if(req.file){
-            log_func('in req.file',"HAVE single file" )
-            let imag= await upload1ImageWithNewName(req.file, "")
-            if (imag.fail()){
-                return next(new AppError("uploading error", 502))
-            }
-            body.image=imag.value
+        // if(req.file){
+        //     log_func('in req.file',"HAVE single file" )
+        //     let imag= await upload1ImageWithNewName(req.file, "")
+        //     if (imag.fail()){
+        //         return next(new AppError("uploading error", 502))
+        //     }
+        //     body.image=imag.value
+        //
+        // }
 
-        }
-
-        let imag= await uploadNewImages(req.files)
+        let imag= await uploadNewCoverandImages(req.files)
         if (imag.fail()){
             return next(new AppError("uploading error", 502))
         }
@@ -144,7 +112,7 @@ exports.createItem=catchAsync(async (req,res,next)=>{
         // })
         // console.log("200")
     }catch (e){
-        log_func("CreateError=", e.message)
+        log_func("CreateError=", e.message, "red")
         res.status(500).json({
             status:"error",
         })
@@ -164,12 +132,12 @@ exports.UpdateItem=catchAsync(async (req, res,next)=>{
             if(!Array.isArray(removedImages)){removedImages=[removedImages]}
             removeLen=removedImages.length
         }
-
         if(req.files){
             let files = req.files
+
             //---------------  1-if the image cover has changed
+
             if(files.imageCover){
-                log_func("updating cover", files.imageCover)
                 let result = await IUploadSingleImage(req.files.imageCover[0].buffer, item.image.imageCover)
                 if (result.fail()){
                     log_func("updating image failed")
@@ -192,17 +160,37 @@ exports.UpdateItem=catchAsync(async (req, res,next)=>{
                 //
                 **/
 
+            // 4: if images have been removed
+            if(removedImages){
+                log_func("deleting images", removedImages, "error")
+                //TODO add a function to check the removedImages names exist in the image.images array
+                await Promise.all(
+                    removedImages.map(async (fileName, i)=>{
+                        const re= await IDeleteImageById(fileName)
+                        if(re.fail()){
+                            log_func("error", re.error)
+                            return next(new AppError("deleting image failed", 500))
+                        }
+                    })
+                )
+                if(!req.body.image){
+                    req.body.image=item.image
+                }
+                console.log("``````````in here removed images", req.body.image.images, "=>",removedImages)
+                req.body.image.images=removeSubArr(req.body.image.images, removedImages)
+            }
             // 3: if new images have been added
             if(files.images){
+                //if it is just a single file change it to an array
                 if ( !Array.isArray(files.images)){
                     files.images=[files.images]
                 }
-                let val=item.image.images.length + files.images.length - removeLen
+                let val=item.image.images.length + files.images.length
                 if (val >3){
                     // return handleError(new AppError("file length cant exceed 3", 400), res)
                     return next(new AppError(`file length cant exceed 3 - found=${val}`, 404))
                 }
-                const res =await uploadImagesWithNewNames(files.images, item.image.id)
+                const res =await uploadManyImagesWithNewNames(files.images, item.image.id)
                 if (res.fail()){
                     log_func("adding images failed")
                     return next(new AppError(" adding new images error", 404));
@@ -214,24 +202,7 @@ exports.UpdateItem=catchAsync(async (req, res,next)=>{
                 console.log("the req Item",req.body.image.images)
             }
         }
-        //    4: if images have been removed
-        if(removedImages){
-            log_func("deleting images", removedImages, "error")
-            await Promise.all(
-                removedImages.map(async (fileName, i)=>{
-                    const re= await deleteFirebaseImage(fileName)
-                    if(re.fail()){
-                        log_func("error", re.error)
-                        return next(new AppError("deleting image failed", 500))
-                    }
-                })
-            )
-            if(!req.body.image){
-                req.body.image=item.image
-            }
-            console.log("``````````in here removed images", req.body.image.images, "=>",removedImages)
-            req.body.image.images=removeSubArr(req.body.image.images, removedImages)
-        }
+
 
         log_func("image operation finished", "", "green")
 

@@ -4,7 +4,7 @@ const path = require("path");
 
 dotenv.config({ path: path.join(__dirname, '../../env/app.env') });
 
-log_func("process==", process.env.FIREBASE_PROJECT_NAME,"BgCyan")
+
 
 
 
@@ -22,8 +22,10 @@ const REMOTE_MONGO_DB_NAME= process.env.REMOTE_MONGO_DB_NAME ||""
 const REMOTE_MONGO_DB_URI= process.env.REMOTE_MONGO_DB_URI || `mongodb+srv://${REMOTE_MONGO_DB_USERNAME}:${REMOTE_MONGO_DB_PASSWORD}@clustere.eiww7.mongodb.net/${REMOTE_MONGO_DB_NAME}?retryWrites=true&w=majority`
 const IsMongoDbRemote=process.env.IS_MONGO_REMOTE==="true"||false
 const getMongoUri=()=>{
-    if (IsMongoDbRemote)
+    if (IsMongoDbRemote){
+        log_func("mongoDb is remote", REMOTE_MONGO_DB_URI, "BgCyan")
         return REMOTE_MONGO_DB_URI
+    }
     else
         return LOCAL_MONGO_DB_URI
 }
@@ -40,16 +42,16 @@ const isProduction=()=>  process.env.NODE_ENV === "production";
 
 let pkey=process.env.FIREBASE_PRIVATE_KEY||""
 try{
-    log_func("Original value==", pkey, "yellow")
+    // log_func("Original value==", pkey, "yellow")
     let result=pkey.replace(/'/g, '"')
-    log_func("replaced Value", result)
+    // log_func("replaced Value", result)
     const privateKey = JSON.parse(result)
-    log_func("json parsed value==-", privateKey, "BgCyan")
+    // log_func("json parsed value==-", privateKey, "BgCyan")
     pkey=privateKey.privateKey
 }catch (e){
     log_func("error==", e.message, "BgRed")
 }
-
+log_func("FirebaseProjectName==>", process.env.FIREBASE_PROJECT_NAME,"BgCyan")
 // log_func("private Key===", pkey)
 const fbConfig={
     "type": process.env.FIREBASE_TYPE || "",

@@ -1,5 +1,5 @@
 const fs = require('fs');
-const mongoose = require('mongoose');
+const mongoose = require('mongoose') ;
 const dotenv = require('dotenv');
 const Item = require('../../src/app/items/itemModel');
 const Review = require('./../../models/reviewModel');
@@ -26,7 +26,7 @@ const reviews = JSON.parse(fs.readFileSync(`${__dirname}/reviews.json`, 'utf-8')
 const importData = async () => {
   try {
     await Item.create(items);
-    await User.create(users, { validateBeforeSave: false });
+    await User.create(users, {validateBeforeSave: false });
     await Review.create(reviews);
     console.log('Data successfully loaded!');
   } catch (err) {

@@ -4,7 +4,8 @@ const AppError = require("../../utils/response/appError");
 const Pick =require('../filterFiles')
 
 const controller = require("../../controllers/factoryController");
-const {deleteFirebaseImage, IUploadSingleImage} = require("../../utils/firebase/firebaseImageUploads");
+const {IDeleteImageById, IUploadSingleImage} = require("../../utils/image/image.Interface");
+// const {deleteFirebaseImageById, IUploadSingleImage} = require("../../utils/firebase/firebaseImageUploads");
 const {upload1ImageWithNewName} = require("../../utils/image/3ImageFunc");
 
 const log_func = require("../../utils/logger");
@@ -86,7 +87,7 @@ const deleteGenre = catchAsync(async (req, res, next) => {
     return next(new AppError("No document found with given id!", 404));
   log_func("deleted Doc", doc, "BgYellow", 2)
   // 3) Delete Genre Image
-  const re= await deleteFirebaseImage(req.body.image)
+  const re= await IDeleteImageById(req.body.image)
   if(re.fail()){
     return next(new AppError("deleting image failed", 500))
   }

@@ -40,7 +40,7 @@ exports.createOne = (Model) =>
 
 exports.getOne = (Model, populateOptions) =>
   catchAsync(async (req, res, next) => {
-      // console.log("-== finding one")
+      log_func("-== finding one", req.params.id, "BgCyan")
     let query = Model.findById(req.params.id).select("-__v -password");
 
     if (populateOptions) query.populate(populateOptions);
@@ -58,15 +58,21 @@ exports.getAll = (Model,  allowedQuery=[]) =>
       // To allow for nested GET reviews an art (hack)
     let idFilter = {};
 
-    //if it is requesting for reviews with this bookId ----- reviews will have bookId
-    if (req.params.bookId) idFilter = { bookId: req.params.bookId };
-    //if it is requesting for books with this categoryID---- items will have category id
-    if (req.params.ctgId) idFilter = { ctgId: req.params.ctgId };
+
+    if (req.query.search) idFilter = { $text: { $search: req.query.search } };
+    // if (req.query.search) idFilter = { name: { $regex: '.*' + req.query.search + '.*' } }
+      //if it is requesting for reviews with this bookId ----- reviews will have bookId
+      // if (req.params.bookId) idFilter['bookId'] =  req.params.bookId
+      //if it is requesting for books with this categoryID---- items will have category id
+      if (req.query.ctgId) idFilter = { ctgId: req.params.ctgId };
+
 
     log_func("query", req.query, "BgGreen")
+    log_func("params", req.params, "BgGreen")
     const filter = pick(req.query, allowedQuery)
       log_func("filter", filter, "BgYellow")
     // apply api features on given query
+      log_func("idFIlter=", idFilter, "BgMagenta")
     const queryBuilder = new ApiFilters(Model.find(idFilter), filter)
       .filter()
       .sort()
@@ -76,7 +82,7 @@ exports.getAll = (Model,  allowedQuery=[]) =>
     // excute query
       // const doc = await features.query.explain();
     const doc = await queryBuilder.query;
-    // console.log("QueryRes==<>", doc)
+    log_func("QueryRes==<>", doc.length, "BgCyan")
     // send responce to client
     sendResponse(200, doc, res);
   });

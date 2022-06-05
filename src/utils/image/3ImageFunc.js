@@ -1,14 +1,15 @@
 const Result = require("../response/appResult");
 const uuid = require("uuid");
 
-const {IUploadSingleImage} = require("../../utils/firebase/firebaseImageUploads");
+const {IUploadSingleImage} = require("../../utils/image/image.Interface");
+// const {IUploadSingleImage} = require("../../utils/firebase/firebaseImageUploads");
 const log_func = require("../../utils/logger");
 
 
 // ------------------------------  Gives new name To Image & uploads them to firebase  ------------------
 //---------: this accepts the general file from the request, which have imageCOver && images
 /**
- * @param {file} file - a file object from request-{req.file.images{buffer, originalname}}
+ * @param {req.file||req.files.imageCover[0]} file - a file object from request-{req.file.images{buffer, originalname}}
  * @param {string} uid - Unique ID to save the images with, optional
  */
 const upload1ImageWithNewName= async (file, uid="")=>{
@@ -22,12 +23,9 @@ const upload1ImageWithNewName= async (file, uid="")=>{
     const img={}
 
   //``````````````-- after just the file have been found `````````````````````
-
     let names =file.originalname.split(".")
     const name =  names[0].trim();
     let type=names[names.length-1]
-
-
     let fName = `${uid}-${name}-${Date.now()}.${type}`;
 
     // log_func('info', "HAVE file")
@@ -50,7 +48,7 @@ const upload1ImageWithNewName= async (file, uid="")=>{
  * @param {[file]} files - a file object from request-{req.files.images}
  * @param {string} uid - Uid to save the images with
  */
-const uploadImagesWithNewNames=async (files, uid)=>{
+const uploadManyImagesWithNewNames=async (files, uid)=>{
     const names=[]
     try{
         await Promise.all(
@@ -86,8 +84,10 @@ const uploadImagesWithNewNames=async (files, uid)=>{
 
 
 // =========================  for uploading singleCover Image + multiple New images  -
-
-const uploadNewImages=async (files) => {
+/**
+ * @param {req.files} files - a file object from request-{req.files.images}
+ */
+const uploadNewCoverAndImages=async (files) => {
     let img={}
     let uid=uuid.v4()
 
@@ -102,7 +102,7 @@ const uploadNewImages=async (files) => {
     img.id=uid
     //-------------------- multiple image
     if (files.images){
-        const result=await uploadImagesWithNewNames(files.images, uid)
+        const result=await uploadManyImagesWithNewNames(files.images, uid)
         if (res.fail()){
             return res
         }
@@ -111,8 +111,9 @@ const uploadNewImages=async (files) => {
     return Result.Ok(img)
 
 }
+
 // For Updating many Images with a name
-const uploadImagesWIthGivenNames= async (files, fileNames)=>{
+const updateImagesWIthGivenNames= async (files, fileNames)=>{
     try{
         if ( !Array.isArray(fileNames)){
             fileNames=[fileNames]
@@ -140,8 +141,8 @@ const uploadImagesWIthGivenNames= async (files, fileNames)=>{
 }
 //
 
-exports.uploadNewImages=uploadNewImages
+exports.uploadNewCoverandImages=uploadNewCoverAndImages
 
 exports.upload1ImageWithNewName=upload1ImageWithNewName
-exports.uploadImagesWithNewNames=uploadImagesWithNewNames
-exports.uploadImagesWIthGivenNames=uploadImagesWIthGivenNames
+exports.uploadManyImagesWithNewNames=uploadManyImagesWithNewNames
+exports.updateImagesWIthGivenNames=updateImagesWIthGivenNames

@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const chalk = require('chalk');
-
+const log_func=require("./src/utils/logger")
 
 const app = require('./src/app');
 const { PORT, getMongoUri} = require("./src/config/constants");
+log_func("mongo Uri", getMongoUri(), "BgMagenta")
 console.log("mongoDb", getMongoUri())
 
 
@@ -12,7 +13,7 @@ console.log("mongoDb", getMongoUri())
 mongoose.connect(getMongoUri(),
     {
         useNewUrlParser: true,
-        // useCreateIndex: true,
+        useCreateIndex: true,
         useFindAndModify: false,
         useUnifiedTopology: true,
     }).then(conn => {

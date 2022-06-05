@@ -12,7 +12,6 @@ const saveError = async err => {
         message: err.message,
         stack: err.stack
     });
-
     return newError.id;
 };
 
@@ -59,7 +58,7 @@ const global_error_handler = async (err, req, res, next) => {
 
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
-    log_func("status==", {status:err.statusCode, name:err.name, message:err.message})
+    log_func("status==", {status:err.statusCode, name:err.name, message:err.message}, "red")
     if (isDevelopment()) {
         await sendErrorDev(err, res);
     } else if (isProduction()) {
