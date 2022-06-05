@@ -28,7 +28,6 @@ const pick = (object, allowedKeys) => {
         return obj;
     }, {});
 };
-
 exports.filterObj=filterObj
 exports.pick=pick
 module.exports = pick;
