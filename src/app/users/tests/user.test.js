@@ -4,7 +4,7 @@
 const app = require("../../../app");
 
 const supertest = require("supertest");
-const User = require("../userModel")
+const User = require("../user.model")
 
 
 // This passes because 1 === 1

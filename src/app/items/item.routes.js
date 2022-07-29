@@ -18,7 +18,7 @@ router
   .get(itemController.getAllItems)
   .post(
       multerSt.uploadImagesToMemory,
-      // protectRoute, restrictRole('admin', 'lead-guide'),
+      // protectRoute, restrictRole('admin',),
       itemController.createItem
   ).delete(
       itemController.deleteAllItem
@@ -36,7 +36,7 @@ router
   )
   .delete(
       // protectRoute,
-      // restrictRole('admin', 'lead-guide'),
+      // restrictRole('admin', ),
       itemController.deleteItem);
 
 

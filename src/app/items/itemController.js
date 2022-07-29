@@ -106,11 +106,7 @@ exports.createItem=catchAsync(async (req,res,next)=>{
             ...body,
         })
         sendResponse(201, item, res);
-        // res.status(201).json({
-        //     status:"success",
-        //     item
-        // })
-        // console.log("200")
+
     }catch (e){
         log_func("CreateError=", e.message, "red")
         res.status(500).json({
@@ -136,6 +132,7 @@ exports.UpdateItem=catchAsync(async (req, res,next)=>{
             let files = req.files
 
             //---------------  1-if the image cover has changed
+            //send a file wiht name files.image cover
 
             if(files.imageCover){
                 let result = await IUploadSingleImage(req.files.imageCover[0].buffer, item.image.imageCover)
@@ -146,6 +143,7 @@ exports.UpdateItem=catchAsync(async (req, res,next)=>{
                 }
                 log_func("info","----------------Primary Image Updated")
             }
+
             /** 2: if other images have changed
                 // if(files.updatedImages && req.body.updatedImagesNames){
                 //     console.log("updating multiple", req.body.updatedImagesNames)
@@ -202,7 +200,6 @@ exports.UpdateItem=catchAsync(async (req, res,next)=>{
                 console.log("the req Item",req.body.image.images)
             }
         }
-
 
         log_func("image operation finished", "", "green")
 

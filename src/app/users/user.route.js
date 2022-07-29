@@ -1,6 +1,6 @@
 const express = require("express");
 const userRouter = express.Router({ mergeParams: true });
-const usersController = require("./adminController");
+const usersController = require("./user.controller");
 
 const meController = require("./meController")
 const multerSt = require('../../utils/image/multers');
@@ -9,11 +9,8 @@ const {protectRoute, restrictRole} = require("../../middlewares/authorizeRoute")
 // const {userSignupInputRule} = require("../auth/validationAuth");
 // const {updatePasswordRule, userUpdateRule} = require("./validate_user");
 // const {validateInput } = require('../../utils/validate_input');
-
 // userRouter.use(protectRoute)
-
 // users access
-
 // userRouter.post("/favorite", meController.getMe, meController.favorite);
 // userRouter.delete("/unFavorite", meController.getMe, meController.unFavorite);
 
@@ -22,17 +19,18 @@ userRouter.patch("/me/update/:id", multerSt.uploadSingleToMemory, meController.g
 userRouter.delete("/me/delete",meController.getMe, meController.deleteMe);
 
 // userRouter.use(restrictRole("admin"));
-
 userRouter.route("/")
     // .post(userSignupInputRule(),validateInput, usersController.createUser)
-    .post(usersController.createUser)
+    .post(
+        multerSt.uploadImagesToMemory,
+        usersController.createUser)
     .get(usersController.getAllUsers); //only admin can view all users
 userRouter.route('/q').get(usersController.searchUser)
 userRouter
   .route("/:id")
   .get(usersController.getUser)
   .patch(
-      multerSt.uploadSingleToMemory,
+      multerSt.uploadImagesToMemory,
       usersController.updateUser)
   // .patch(userUpdateRule(), validateInput, usersController.updateUser)
   .delete(usersController.deleteUser);

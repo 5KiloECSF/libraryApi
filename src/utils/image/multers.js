@@ -32,4 +32,8 @@ exports.uploadUpdatedImages = memUpload.fields([
     { name: 'imageCover', maxCount: 1 },
     { name: 'addedImages', maxCount: 3 },
 ]);
+exports.uploadUser = memUpload.fields([
+    { name: 'profile', maxCount: 1 },
+    { name: 'idImage', maxCount: 1 },
+]);
 

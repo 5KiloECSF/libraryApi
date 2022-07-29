@@ -1,8 +1,8 @@
 const catchAsync = require("../../utils/response/catchAsync");
-const User = require("./userModel");
+const User = require("./user.model");
 const AppError = require("../../utils/response/appError");
 const {sendResponse} = require("../../utils/response/success_response");
-const {updateUsr} = require("./adminController");
+const {updateUsr} = require("./user.controller");
 
 
 

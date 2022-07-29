@@ -7,7 +7,12 @@ const log_func = require("../../utils/logger");
 
 
 // ------------------------------  Gives new name To Image & uploads them to firebase  ------------------
-//---------: this accepts the general file from the request, which have imageCOver && images
+//---------: this accepts the general file from the request, which have imageCover && images
+// =========| Used in {create Functions- only Cover image} no Id & {uploadNewCoverAndImages} given Uid
+//----------------->  Create Functions with Cover Image only, like category & with Empty uid
+//----------------->  {uploadNewCoverAndImages} with A Generated ID
+//==========| Uses {IUploadSingleImage}
+
 /**
  * @param {req.file||req.files.imageCover[0]} file - a file object from request-{req.file.images{buffer, originalname}}
  * @param {string} uid - Unique ID to save the images with, optional
@@ -43,6 +48,11 @@ const upload1ImageWithNewName= async (file, uid="")=>{
 
     return Result.Ok(img, "Successfully uploaded 1 New Image", true)
 }
+
+//======= Used In ========- {CreateFunctions} & {uploadNewCoverAndImages}
+// ---> Adding new images for update items function - with the existing image id
+//----> Adding new images for Create items function with a new id Generated- {uploadNewCoverAndImages}
+//======= Uses {IUploadSingleImage}
 
 /**
  * @param {[file]} files - a file object from request-{req.files.images}
@@ -84,6 +94,8 @@ const uploadManyImagesWithNewNames=async (files, uid)=>{
 
 
 // =========================  for uploading singleCover Image + multiple New images  -
+//========| Used {Create Functions with many images}
+//========| Uses {upload1ImageWithNewName} & {uploadManyImagesWithNewNames}
 /**
  * @param {req.files} files - a file object from request-{req.files.images}
  */
@@ -112,7 +124,11 @@ const uploadNewCoverAndImages=async (files) => {
 
 }
 
-// For Updating many Images with a name
+// For Uploading  many Images with a Given names - used for Updating images with out changing the name
+//=====Used in: update images
+// -------------> updating many images
+//=====Uses : {IUploadSingleImage}
+
 const updateImagesWIthGivenNames= async (files, fileNames)=>{
     try{
         if ( !Array.isArray(fileNames)){
@@ -141,8 +157,10 @@ const updateImagesWIthGivenNames= async (files, fileNames)=>{
 }
 //
 
+// For Create item function with cover image & other images
 exports.uploadNewCoverandImages=uploadNewCoverAndImages
 
 exports.upload1ImageWithNewName=upload1ImageWithNewName
 exports.uploadManyImagesWithNewNames=uploadManyImagesWithNewNames
+//For Uploading images with given name
 exports.updateImagesWIthGivenNames=updateImagesWIthGivenNames

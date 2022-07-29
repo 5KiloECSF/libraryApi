@@ -18,6 +18,7 @@ const filterObj = (reqBody, allowedFields) => {
  * @param {string[]} allowedKeys
  * @returns {Object}
  */
+
 const pick = (object, allowedKeys) => {
     //Iterates over the allowed keys only, much more effictive
     return allowedKeys.reduce((obj, key) => {

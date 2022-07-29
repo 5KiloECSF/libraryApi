@@ -1,4 +1,4 @@
-const User = require('../users/userModel');
+const User = require('../users/user.model');
 const { sendResponse, sendResponseWithToken } = require('../../utils/response/success_response');
 const catchAsync = require('../../utils/response/catchAsync');
 const AppError = require('../../utils/response/appError');

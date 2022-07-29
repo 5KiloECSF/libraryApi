@@ -31,15 +31,11 @@ const userSchema = new Schema(
       minlength: [10, "invalid phone number format, too short"],
       maxlength: [14, "invalid phone number format, too long"],
     },
-
-      email: {
-          type: String,
-          lowercase: true,
-          validate: [validator.isEmail, "Invalid email. Please use valid email!"],
-      },
-    firebaseId:{
-        type: String,
-    },
+  email: {
+      type: String,
+      lowercase: true,
+      validate: [validator.isEmail, "Invalid email. Please use valid email!"],
+  },
     role: {
       type: String,
       enum: {
@@ -51,6 +47,7 @@ const userSchema = new Schema(
     image: {
       id:String,
       imageCover:String,
+      images: [String],
       imagePath:String,
       suffix:String,
     },
@@ -61,35 +58,34 @@ const userSchema = new Schema(
       maxlength: 64,
       select: false,
     },
-    passwordChangedAt: Date,
-    passwordResetToken: String,
-    passwordResetExpires: Date,
-    createdAt: {
-      type: Date,
-      default: Date.now(),
-      validate: [validator.isDate, "wrong date format"],
-    },
-    active: {
-      type: Boolean,
-      default: true,
-      select: false,
-    },
-
-    favorites: [{ type: Schema.Types.ObjectId, ref: "Book" }],
-  team:{
-      type: String,
-      enum: {
-          values: ["Action", "Art", "BibleStudy", "Choir", "Holistic", "Prayer", "Shepherd", "None"],
-          message: "{VALUE} role is not supported",
+      active: {
+          type: Boolean,
+          default: false,
+          select: false,
       },
-      default: "None",
-  },
-   batch:{
-        type:Number
-   }
+
+      team:{
+          type: String,
+          enum: {
+              values: ["Action", "Art", "BibleStudy", "Choir", "Holistic", "Prayer", "Shepherd", "None"],
+              message: "{VALUE} team is not supported",
+          },
+          default: "None",
+      },
+      batch:{
+          type:Number
+      },
+
+      favorites: [{ type: Schema.Types.ObjectId, ref: "Book" }],
+      tempPwd:String,
+      passwordChangedAt: Date,
+      passwordResetToken: String,
+      passwordResetExpires: Date,
+
 
   },
   {
+      timestamps:true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }

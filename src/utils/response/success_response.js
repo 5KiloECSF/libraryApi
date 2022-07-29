@@ -20,6 +20,7 @@ const sendErrorResponse=(statusCode, value, res)=>{
 
 const sendError = (statusCode, data, res) => {
 
+    //Todo remove the data in production
     res.status(statusCode).send({
         status: "error",
         message: {

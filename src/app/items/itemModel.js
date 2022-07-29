@@ -50,7 +50,7 @@ const bookSchema = new mongoose.Schema(
       booksAmount: {
           type: Number,
           default:1,
-          // required: [true, 'A book must have a price']
+          // required: [true, 'A book must have an amount']
       },
     currentHolders:{
         type: mongoose.Schema.ObjectId,

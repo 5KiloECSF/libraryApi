@@ -1,4 +1,4 @@
-const User = require("./userModel");
+const User = require("./user.model");
 const log_func = require('../../utils/logger')
 
 /**
