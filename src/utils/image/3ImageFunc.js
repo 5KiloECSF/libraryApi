@@ -17,7 +17,7 @@ const log_func = require("../../utils/logger");
  * @param {req.file||req.files.imageCover[0]} file - a file object from request-{req.file.images{buffer, originalname}}
  * @param {string} uid - Unique ID to save the images with, optional
  */
-const upload1ImageWithNewName= async (file, uid="")=>{
+const upload1ImageWithNewName= async (file, uid="", modelPrefix="")=>{
     if(uid===""){
         uid=uuid.v4()
     }
@@ -31,7 +31,7 @@ const upload1ImageWithNewName= async (file, uid="")=>{
     let names =file.originalname.split(".")
     const name =  names[0].trim();
     let type=names[names.length-1]
-    let fName = `${uid}-${name}-${Date.now()}.${type}`;
+    let fName = `${modelPrefix+uid}-${name}-${Date.now()}.${type}`;
 
     // log_func('info', "HAVE file")
     const result = await IUploadSingleImage(file.buffer, fName)
@@ -58,7 +58,7 @@ const upload1ImageWithNewName= async (file, uid="")=>{
  * @param {[file]} files - a file object from request-{req.files.images}
  * @param {string} uid - Uid to save the images with
  */
-const uploadManyImagesWithNewNames=async (files, uid)=>{
+const uploadManyImagesWithNewNames=async (files, uid="", modelPrefix="")=>{
     const names=[]
     try{
         await Promise.all(
@@ -69,14 +69,13 @@ const uploadManyImagesWithNewNames=async (files, uid)=>{
                 let ext=name[name.length-1]
 
 
-                const filename = `${uid}-${Date.now()}-${i + 1}.${ext}`;
+                const filename = `${modelPrefix+uid}-${Date.now()}-${i + 1}.${ext}`;
                 // console.log("******************fname````````...>",i, filename)
 
                 const result= await  IUploadSingleImage(file.buffer,  filename)
                 if (result.fail()){
                     return Result.Failed(result.error,"failed uploading multi images, in a loop")
                 }
-
                 names.push(result.value.name)
                 console.log("bdy.img===", names)
             })
@@ -99,14 +98,14 @@ const uploadManyImagesWithNewNames=async (files, uid)=>{
 /**
  * @param {req.files} files - a file object from request-{req.files.images}
  */
-const uploadNewCoverAndImages=async (files) => {
+const uploadNewCoverAndImages=async (files, modelPrefix="") => {
     let img={}
     let uid=uuid.v4()
 
     if(!files){
         return Result.Failed("no image or images found")
     }
-    const res= await upload1ImageWithNewName(files.imageCover[0], uid)
+    const res= await upload1ImageWithNewName(files.imageCover[0], uid, modelPrefix)
     if (res.fail()){
         return res
     }
@@ -114,7 +113,7 @@ const uploadNewCoverAndImages=async (files) => {
     img.id=uid
     //-------------------- multiple image
     if (files.images){
-        const result=await uploadManyImagesWithNewNames(files.images, uid)
+        const result=await uploadManyImagesWithNewNames(files.images, uid, modelPrefix)
         if (res.fail()){
             return res
         }
@@ -123,12 +122,13 @@ const uploadNewCoverAndImages=async (files) => {
     return Result.Ok(img)
 
 }
-
+// =================================  Depricated ===================//////////
 // For Uploading  many Images with a Given names - used for Updating images with out changing the name
 //=====Used in: update images
 // -------------> updating many images
 //=====Uses : {IUploadSingleImage}
 
+//
 const updateImagesWIthGivenNames= async (files, fileNames)=>{
     try{
         if ( !Array.isArray(fileNames)){

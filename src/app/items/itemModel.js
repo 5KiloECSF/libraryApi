@@ -8,7 +8,6 @@ const bookSchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, 'A book must have a name'],
-
       trim: true,
       maxlength: [60, 'A book name must have less or equal then 40 characters'],
       minlength: [2, 'A book name must have more or equal then 10 characters']
@@ -52,6 +51,7 @@ const bookSchema = new mongoose.Schema(
           default:1,
           // required: [true, 'A book must have an amount']
       },
+      available:Boolean,
     currentHolders:{
         type: mongoose.Schema.ObjectId,
         ref: 'User'
@@ -98,7 +98,6 @@ const bookSchema = new mongoose.Schema(
           type: Number,
           default: 0
       },
-
       hiddenBook: {
           type: Boolean,
           default: false,
@@ -116,6 +115,7 @@ const bookSchema = new mongoose.Schema(
 );
 
 bookSchema.index({ type: 1, tags: 1 });
+bookSchema.index({ type: 1, genres: 1 });
 bookSchema.index({ slug: 1 });
 bookSchema.index({name: 'text' , description:'text'});
 // bookSchema.ensureIndexes()
@@ -127,6 +127,7 @@ bookSchema.index({name: 'text' , description:'text'});
 //     }
 // });
 //
+
 bookSchema.virtual('poster').get(function() {
     return this.image.imagePath +this.image.imageCover+this.image.suffix;
 });

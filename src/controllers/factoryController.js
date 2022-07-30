@@ -54,7 +54,8 @@ exports.getOne = (Model, populateOptions) =>
 exports.getAll = (Model,  allowedQuery=[]) =>
   catchAsync(async (req, res, next) => {
       console.log("querying all")
-
+      console.log("model", Model)
+        log_func("the model is", Model, "blue")
       // To allow for nested GET reviews an art (hack)
     let idFilter = {};
 

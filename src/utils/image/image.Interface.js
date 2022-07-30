@@ -87,7 +87,7 @@ const IDeleteAllImages=async () => {
     return await deleteAllFirebaseImages()
 }
 const IDeleteImageById= async (id)=>{
-    log_func("interface speaking","", "BgCyan")
+    log_func("interface speaking",id, "BgCyan")
     return await deleteFirebaseImageById(id)
 }
 

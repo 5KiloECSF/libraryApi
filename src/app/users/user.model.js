@@ -34,6 +34,14 @@ const userSchema = new Schema(
   email: {
       type: String,
       lowercase: true,
+      trim:true,
+      sparse:true,
+      unique:true,
+      // index:{
+      //     unique:true,
+      //     sparse:true,
+      //     partialFilterExpression:{email: {$type: "string"}}
+      // },
       validate: [validator.isEmail, "Invalid email. Please use valid email!"],
   },
     role: {
@@ -63,7 +71,7 @@ const userSchema = new Schema(
           default: false,
           select: false,
       },
-
+    donatedCount:Number,
       team:{
           type: String,
           enum: {
@@ -75,6 +83,7 @@ const userSchema = new Schema(
       batch:{
           type:Number
       },
+
 
       favorites: [{ type: Schema.Types.ObjectId, ref: "Book" }],
       tempPwd:String,
@@ -97,8 +106,14 @@ userSchema.plugin(paginate);
 userSchema.virtual('fullName').get(function() {
     return this.firstName+" " +this.lastName;
 });
+userSchema.virtual('userImages').get(function() {
+    return {
+        id:this.image.imageCover !==undefined? this.image.imagePath + this.image.imageCover + this.image.suffix:"",
+        profile:this.image.images[0]!==undefined?this.image.imagePath + this.image.images[0] + this.image.suffix:"",
+    }
+});
 /**
- * Check if email is taken
+ * Check if phone is taken
  * @param {string} phone - The user's phone
  * @param {ObjectId} [excludeUserId] - The id of the user to be excluded
  * @returns {Promise<boolean>}
@@ -155,10 +170,10 @@ userSchema.methods.createPasswordResetToken = function() {
 /**
  * Get only active user accounts
  */
-userSchema.pre(/^find/, function (next) {
-  this.find({ active: { $ne: false } });
-  next();
-});
+// userSchema.pre(/^find/, function (next) {
+//   this.find({ active: { $ne: false } });
+//   next();
+// });
 
 const User = model("User", userSchema);
 

@@ -18,7 +18,8 @@ const deleteMe = catchAsync(async (req, res, next) => {
     const { password } = req.body;
     if (!password)
         return next(new AppError("Password is required for this operation!", 401));
-    if (!(await req.user.comparePassword(password.toString(), req.user.password)))
+    const user = await User.findOne({ phone:req.user.phone }).select('+password');
+    if (!(await user.comparePassword(password, user.password)))
         return next(new AppError("Password is wrong!", 401));
     await User.findByIdAndUpdate(req.user.id, { active: false });
 
@@ -37,7 +38,6 @@ const unFavorite = catchAsync(async (req, res, next) => {
     const updatedUser = await User.findByIdAndUpdate(req.user.id, {
         $pull: { favorites: targetId },
     });
-
     sendResponse(204, null, res);
 });
 

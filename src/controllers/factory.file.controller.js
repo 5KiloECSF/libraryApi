@@ -10,6 +10,7 @@ const log_func = require("../utils/logger");
 const {IUploadSingleImage, IDeleteImageById} = require("../utils/image/image.Interface");
 const {handleError} = require("../app/error/global_error_handler");
 const Pick = require("../app/filterFiles");
+const {log_err} = require("../utils/logger");
 
 function generateP(len ) {
     let pass = '';
@@ -21,12 +22,10 @@ function generateP(len ) {
             * str.length + 1);
         pass += str.charAt(char)
     }
-
     return pass;
 }
-exports.createOneWithManyImage = (Model, isImageReq=true, generatePwd=false) =>
+exports.createOneWithManyImage = (Model, isImageReq=true, generatePwd=false, modelPrefix="") =>
     catchAsync(async (req, res, next) => {
-
         try{
             const body=req.body;
             if(generatePwd){
@@ -35,13 +34,12 @@ exports.createOneWithManyImage = (Model, isImageReq=true, generatePwd=false) =>
                 body.password=newPwd
                 body.tempPwd=newPwd
             }
-
             // log_func("creating BOdy===>", body)
             if(isImageReq && !req.files){
                 return next(new AppError("NO images found", 502));
             }
             if(req.files){
-                let imag= await uploadNewCoverandImages(req.files)
+                let imag= await uploadNewCoverandImages(req.files, modelPrefix)
                 if (imag.fail()){
                     return next(new AppError("uploading error", 502))
                 }
@@ -67,52 +65,41 @@ exports.updateWithManyImages = (Model,  allowedUpdate=[]) =>
 
         try{
             const item=await Model.findById(req.params.id)
-
-            let removedImages=req.body.removedImages
-            log_func("req.body==", req.body, "BgGreen")
-            // let removeLen=0
-            if ( removedImages ){
-                log_func("images to be Removed=", removedImages, "yellow")
-                if(!Array.isArray(removedImages)){removedImages=[removedImages]}
-                // removeLen=removedImages.length
-            }
             if(req.files){
                 let files = req.files
 
                 //---------------  1-if the image cover has changed
                 //send a file wiht name files.image cover
-
+                req.body.image=item.image
                 if(files.imageCover){
                     let result = await IUploadSingleImage(req.files.imageCover[0].buffer, item.image.imageCover)
                     if (result.fail()){
-                        log_func("updating image failed")
+                        log_func("updating cover image failed")
                         await handleError(new AppError("uploading profile", 400), res)
                         return
                     }
                     log_func("info","----------------Primary Image Updated")
                 }
 
-                /** 2: if other images have changed
-                 // if(files.updatedImages && req.body.updatedImagesNames){
-                //     console.log("updating multiple", req.body.updatedImagesNames)
-                //     // --> to validate the image names already existed
-                //     let fileNames=validateSubArr(item.image.images, req.body.updatedImagesNames)
-                //     const res= await uploadImagesWIthGivenNames(req.files.updatedImages, fileNames)
-                //     if (res.fail()){
-                //         log_func("updating image failed")
-                //
-                //         return handleError(res.error, res)
-                //     }
-                //
-                 **/
 
+                let removedImages=req.body.removedImages
+                // let removeLen=0
+                if ( removedImages ){
+                    log_func("requested images to Be deleted=", removedImages, "BgYellow")
+                    if(!Array.isArray(removedImages)){removedImages=[removedImages]}
+                    // removeLen=removedImages.length
+                }
                 // 4: if images have been removed
                 if(removedImages){
-                    log_func("deleting images", removedImages, "error")
+                    log_func("deleting images", removedImages, "magenta")
+                    log_func("existing images", item.image.images)
                     await Promise.all(
                         removedImages.map(async (fileName, i)=>{
+                            log_func(`image:-- ${i}:== `, fileName)
+
                             // to check the removedImages names exist in the image.images array
-                            if(fileName in item.image.images){
+                            if( item.image.images.includes(fileName)){
+                                log_func("removing", `${i}:->${fileName}`, "red")
                                 const re= await IDeleteImageById(fileName)
                                 if(re.fail()){
                                     log_func("error", re.error)
@@ -122,12 +109,8 @@ exports.updateWithManyImages = (Model,  allowedUpdate=[]) =>
 
                         })
                     )
-                    //the body dont have images field, so we copy the items  images
-                    if(!req.body.image){
-                        req.body.image=item.image
-                    }
-                    console.log("``````````in here removed images", req.body.image.images, "=>",removedImages)
-                    req.body.image.images=removeSubArr(req.body.image.images, removedImages)
+
+                    req.body.image.images= removeSubArr(req.body.image.images, removedImages)
                 }
                 // 3: if new images have been added
                 if(files.images){
@@ -135,7 +118,8 @@ exports.updateWithManyImages = (Model,  allowedUpdate=[]) =>
                     if ( !Array.isArray(files.images)){
                         files.images=[files.images]
                     }
-                    let val=item.image.images.length + files.images.length
+                    //to Get the length of the existing images Plus the new added images
+                    let val=req.body.image.images.length+ files.images.length
                     if (val >3){
                         // return handleError(new AppError("file length cant exceed 3", 400), res)
                         return next(new AppError(`file length cant exceed 3 - found=${val}`, 404))
@@ -151,6 +135,20 @@ exports.updateWithManyImages = (Model,  allowedUpdate=[]) =>
                     req.body.image.images=[...item.image.images, ...res.value]
                     console.log("the req Item",req.body.image.images)
                 }
+
+                /** 2: if other images have changed
+                 // if(files.updatedImages && req.body.updatedImagesNames){
+                //     console.log("updating multiple", req.body.updatedImagesNames)
+                //     // --> to validate the image names already existed
+                //     let fileNames=validateSubArr(item.image.images, req.body.updatedImagesNames)
+                //     const res= await uploadImagesWIthGivenNames(req.files.updatedImages, fileNames)
+                //     if (res.fail()){
+                //         log_func("updating image failed")
+                //
+                //         return handleError(res.error, res)
+                //     }
+                //
+                 **/
             }
 
             log_func("image operation finished", "", "green")
@@ -167,7 +165,8 @@ exports.updateWithManyImages = (Model,  allowedUpdate=[]) =>
 
             sendResponse(202, doc, res);
         }catch (e){
-            console.log("error happended-->", e.message)
+            // log_err("update error", e, "red")
+            console.log("error happended-->", e.message, e)
             return next(new AppError("internal server error", 500));
         }
 
@@ -183,7 +182,6 @@ const removeSubArr=(mainArr, arrToBeRemoved)=>{
 
 exports.deleteWithImages = (Model) =>
     catchAsync(async (req, res, next) => {
-
         try{
             const doc = await Model.findByIdAndDelete(req.params.id);
 
@@ -240,7 +238,7 @@ exports.updateOneWithImage = (Model, allowedUpdate=[]) =>
     });
 
 
-exports.createOneWithOneImage = (Model) =>
+exports.createOneWithOneImage = (Model, modelPrefix="") =>
     catchAsync(async (req, res, next) => {
         try{
             const body=req.body;
@@ -249,13 +247,13 @@ exports.createOneWithOneImage = (Model) =>
                 return next(new AppError("NO images found", 502))
             }
             log_func('in req.file',"HAVE single file" )
-            let imag= await upload1ImageWithNewName(req.file, "")
+            let imag= await upload1ImageWithNewName(req.file, "", modelPrefix)
             if (imag.fail()){
                 return next(new AppError("uploading error", 502))
             }
             body.image=imag.value
 
-            const genre=await Genre.create({
+            const genre=await Model.create({
                 ...body,
             })
 
