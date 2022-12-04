@@ -7,7 +7,8 @@ const mongoose = require("mongoose");
 
 const instanceSchema = new Schema(
     {
-        number: {
+        // auto increament, the number posted on each book: good for tracking duplicate books
+        number: {     
             type: Number,
         },
         bookId:{
